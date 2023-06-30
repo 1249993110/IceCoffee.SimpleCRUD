@@ -1,4 +1,6 @@
-﻿namespace IceCoffee.SimpleCRUD
+﻿using IceCoffee.SimpleCRUD.SqlGenerators;
+
+namespace IceCoffee.SimpleCRUD
 {
     public abstract class RepositoryBase<TEntity> : RepositoryBase, IRepository<TEntity>
     {
