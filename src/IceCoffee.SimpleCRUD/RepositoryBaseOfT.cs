@@ -21,6 +21,8 @@ namespace IceCoffee.SimpleCRUD
         {
         }
 
+        #region Sync
+
         public int Delete(string whereClause, object? param = null, bool useTransaction = false, string? tableName = null)
         {
             string sql = SqlGenerator.GetDeleteStatement(whereClause, tableName);
@@ -138,5 +140,129 @@ namespace IceCoffee.SimpleCRUD
             string sql = SqlGenerator.GetUpdateStatement(tableName);
             return base.Execute(sql, entities, useTransaction);
         }
+
+        #endregion
+
+        #region Async
+
+        public Task<int> DeleteAsync(string whereClause, object? param = null, bool useTransaction = false, string? tableName = null)
+        {
+            string sql = SqlGenerator.GetDeleteStatement(whereClause, tableName);
+            return base.ExecuteAsync(sql, param, useTransaction);
+        }
+
+        public Task<int> DeleteAsync(TEntity entity, string? tableName = null)
+        {
+            string sql = SqlGenerator.GetDeleteStatement(SqlGenerator.PrimaryKeyWhereClause, tableName);
+            return base.ExecuteAsync(sql, entity);
+        }
+
+        public Task<int> DeleteAsync(IEnumerable<TEntity> entities, bool useTransaction = false, string? tableName = null)
+        {
+            string sql = SqlGenerator.GetDeleteStatement(SqlGenerator.PrimaryKeyWhereClause, tableName);
+            return base.ExecuteAsync(sql, entities, useTransaction);
+        }
+
+        public Task<int> DeleteByIdAsync<TId>(TId id, string? tableName = null)
+        {
+            string sql = SqlGenerator.GetDeleteStatement(SqlGenerator.GetSingleKey() + "=@Id", tableName);
+            return base.ExecuteAsync(sql, new { Id = id });
+        }
+
+        public Task<int> DeleteByIdsAsync<TId>(IEnumerable<TId> ids, bool useTransaction = false, string? tableName = null)
+        {
+            string sql = SqlGenerator.GetDeleteStatement(SqlGenerator.GetSingleKey() + " IN @Ids", tableName);
+            return base.ExecuteAsync(sql, new { Ids = ids }, useTransaction);
+        }
+
+        public Task<TEntity?> GetByIdAsync<TKey>(TKey id, string? tableName = null)
+        {
+            return this.GetFirstOrDefaultAsync(SqlGenerator.GetSingleKey() + "=@Id", null, new { Id = id }, tableName);
+        }
+
+        public async Task<TEntity?> GetFirstOrDefaultAsync(string? whereClause = null, string? orderByClause = null, object? param = null, string? tableName = null)
+        {
+            string sql = SqlGenerator.GetSelectStatement(whereClause, orderByClause, tableName);
+            return (await base.ExecuteQueryAsync<TEntity>(sql, param)).FirstOrDefault();
+        }
+
+        public Task<IEnumerable<TEntity>> GetListAsync(string? whereClause = null, string? orderByClause = null, object? param = null, string? tableName = null)
+        {
+            string sql = SqlGenerator.GetSelectStatement(whereClause, orderByClause, tableName);
+            return base.ExecuteQueryAsync<TEntity>(sql, param);
+        }
+
+        public async Task<(IEnumerable<TEntity> Items, int Total)> GetPagedListAsync(int pageNumber, int pageSize, string? whereClause = null, string? orderByClause = null, object? param = null, string? tableName = null)
+        {
+            string sql = SqlGenerator.GetRecordCountStatement(whereClause, tableName) + ";"
+                + SqlGenerator.GetSelectPagedStatement(pageNumber, pageSize, whereClause, orderByClause, tableName);
+
+            using var multi = await base.ExecuteQueryMultipleAsync(sql, param);
+            var total = await multi.ReadSingleAsync<int>();
+            var items = total > 0 ? await multi.ReadAsync<TEntity>() : Enumerable.Empty<TEntity>();
+            return (items, total);
+        }
+
+        public Task<int> GetRecordCountAsync(string? whereClause = null, object? param = null, string? tableName = null)
+        {
+            string sql = SqlGenerator.GetRecordCountStatement(whereClause, tableName);
+            return base.ExecuteScalarAsync<int>(sql, param);
+        }
+
+        public Task<int> InsertAsync(TEntity entity, string? tableName = null)
+        {
+            string sql = SqlGenerator.GetInsertStatement(tableName);
+            return base.ExecuteAsync(sql, entity);
+        }
+
+        public Task<int> InsertAsync(IEnumerable<TEntity> entities, bool useTransaction = false, string? tableName = null)
+        {
+            string sql = SqlGenerator.GetInsertStatement(tableName);
+            return base.ExecuteAsync(sql, entities, useTransaction);
+        }
+
+        public Task<int> InsertOrIgnoreAsync(TEntity entity, string? tableName = null)
+        {
+            string sql = SqlGenerator.GetInsertOrIgnoreStatement(tableName);
+            return base.ExecuteAsync(sql, entity);
+        }
+
+        public Task<int> InsertOrIgnoreAsync(IEnumerable<TEntity> entities, bool useTransaction = false, string? tableName = null)
+        {
+            string sql = SqlGenerator.GetInsertOrIgnoreStatement(tableName);
+            return base.ExecuteAsync(sql, entities, useTransaction);
+        }
+
+        public Task<int> InsertOrReplaceAsync(TEntity entity, string? tableName = null)
+        {
+            string sql = SqlGenerator.GetInsertOrReplaceStatement(tableName);
+            return base.ExecuteAsync(sql, entity);
+        }
+
+        public Task<int> InsertOrReplaceAsync(IEnumerable<TEntity> entities, bool useTransaction = false, string? tableName = null)
+        {
+            string sql = SqlGenerator.GetInsertOrReplaceStatement(tableName);
+            return base.ExecuteAsync(sql, entities, useTransaction);
+        }
+
+        public Task<int> UpdateAsync(string setClause, string whereClause, object param, bool useTransaction = false, string? tableName = null)
+        {
+            string sql = SqlGenerator.GetUpdateStatement(setClause, whereClause, tableName);
+            return base.ExecuteAsync(sql, param, useTransaction);
+        }
+
+        public Task<int> UpdateAsync(TEntity entity, string? tableName = null)
+        {
+            string sql = SqlGenerator.GetUpdateStatement(tableName);
+            return base.ExecuteAsync(sql, entity);
+        }
+
+        public Task<int> UpdateAsync(IEnumerable<TEntity> entities, bool useTransaction = false, string? tableName = null)
+        {
+            string sql = SqlGenerator.GetUpdateStatement(tableName);
+            return base.ExecuteAsync(sql, entities, useTransaction);
+        }
+
+        #endregion
     }
 }

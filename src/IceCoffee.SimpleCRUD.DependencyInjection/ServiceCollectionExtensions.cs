@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using IceCoffee.SimpleCRUD.SqlGenerators;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using System;
@@ -12,55 +13,115 @@ namespace IceCoffee.SimpleCRUD.DependencyInjection
 {
     public static class ServiceCollectionExtensions
     {
+        #region Configure by action
         /// <summary>
         /// 
         /// </summary>
         /// <param name="services">The <see cref="IServiceCollection"/> instance.</param>
-        /// <param name="assembly">The assembly to scan.</param>
         /// <param name="configure">The action to configure the <see cref="DbConnectionOptions"/>.</param>
+        /// <param name="assembly">The assembly to scan.</param>
         /// <param name="serviceLifetime">The <see cref="ServiceLifetime"/> for the repositories.</param>
         /// <returns>The <see cref="IServiceCollection"/>.</returns>
         public static IServiceCollection AddRepositories(
             this IServiceCollection services,
-            Assembly assembly,
             Action<DbConnectionOptions> configure,
+            Assembly assembly,
             ServiceLifetime serviceLifetime = ServiceLifetime.Singleton)
         {
-            return services.AddRepositories(assembly, configure, serviceLifetime);
+            return services.AddRepositories(string.Empty, configure, assembly, serviceLifetime);
+        }
+        public static IServiceCollection AddRepositories(
+            this IServiceCollection services,
+            string connectionName,
+            Action<DbConnectionOptions> configure,
+            Assembly assembly,
+            ServiceLifetime serviceLifetime = ServiceLifetime.Singleton)
+        {
+            services.AddOptions<DbConnectionOptions>(connectionName).Configure(configure);
+            return services.InternalAddRepositories(assembly, serviceLifetime);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="services">The <see cref="IServiceCollection"/> instance.</param>
-        /// <param name="repositoryTypes"></param>
-        /// <param name="configure">The action to configure the <see cref="DbConnectionOptions"/>.</param>
-        /// <param name="connectionName"></param>
-        /// <param name="serviceLifetime">The <see cref="ServiceLifetime"/> for the repositories.</param>
-        /// <returns>The <see cref="IServiceCollection"/>.</returns>
         public static IServiceCollection AddRepositories(
             this IServiceCollection services,
-            IEnumerable<(Type ServiceType, Type ImplType)> repositoryTypes,
             Action<DbConnectionOptions> configure,
-            string connectionName,
+            IEnumerable<(Type ServiceType, Type ImplType)> repositoryTypes,
             ServiceLifetime serviceLifetime = ServiceLifetime.Singleton)
         {
-            if (services is null)
-            {
-                throw new ArgumentNullException(nameof(services));
-            }
-
-            if (configure is null)
-            {
-                throw new ArgumentNullException(nameof(configure));
-            }
-
-            //services.AddOptions<DbConnectionOptions>().Bind();
-            //services.AddOptions<DbConnectionOptions>().BindConfiguration();
-
+            return services.AddRepositories(string.Empty, configure, repositoryTypes, serviceLifetime);
+        }
+        public static IServiceCollection AddRepositories(
+            this IServiceCollection services,
+            string connectionName,
+            Action<DbConnectionOptions> configure,
+            IEnumerable<(Type ServiceType, Type ImplType)> repositoryTypes,
+            ServiceLifetime serviceLifetime = ServiceLifetime.Singleton)
+        {
             services.AddOptions<DbConnectionOptions>(connectionName).Configure(configure);
+            return services.InternalAddRepositories(repositoryTypes, serviceLifetime);
+        }
+        #endregion
 
+        #region Configure by section path
+        public static IServiceCollection AddRepositories(
+            this IServiceCollection services,
+            string configurationSectionPath,
+            Assembly assembly,
+            ServiceLifetime serviceLifetime = ServiceLifetime.Singleton)
+        {
+            return services.AddRepositories(string.Empty, configurationSectionPath, assembly, serviceLifetime);
+        }
+        public static IServiceCollection AddRepositories(
+            this IServiceCollection services,
+            string connectionName,
+            string configurationSectionPath,
+            Assembly assembly,
+            ServiceLifetime serviceLifetime = ServiceLifetime.Singleton)
+        {
+            services.AddOptions<DbConnectionOptions>(connectionName).BindConfiguration(configurationSectionPath);
+            return services.InternalAddRepositories(assembly, serviceLifetime);
+        }
+
+        public static IServiceCollection AddRepositories(
+            this IServiceCollection services,
+            string configurationSectionPath,
+            IEnumerable<(Type ServiceType, Type ImplType)> repositoryTypes,
+            ServiceLifetime serviceLifetime = ServiceLifetime.Singleton)
+        {
+            return services.AddRepositories(string.Empty, configurationSectionPath, repositoryTypes, serviceLifetime);
+        }
+        public static IServiceCollection AddRepositories(
+            this IServiceCollection services,
+            string connectionName,
+            string configurationSectionPath,
+            IEnumerable<(Type ServiceType, Type ImplType)> repositoryTypes,
+            ServiceLifetime serviceLifetime = ServiceLifetime.Singleton)
+        {
+            services.AddOptions<DbConnectionOptions>(connectionName).BindConfiguration(configurationSectionPath);
+            return services.InternalAddRepositories(repositoryTypes, serviceLifetime);
+        }
+        #endregion
+
+        private static IServiceCollection InternalAddRepositories(this IServiceCollection services, Assembly assembly, ServiceLifetime serviceLifetime)
+        {
+            var repositoryTypes = new List<(Type ServiceType, Type ImplType)>();
+            foreach (var implType in assembly.GetExportedTypes())
+            {
+                if (implType.IsSubclassOf(typeof(RepositoryBase)) && implType.IsAbstract == false)
+                {
+                    var serviceType = implType.GetInterfaces().First(p => typeof(IRepository).IsAssignableFrom(p) && p != typeof(IRepository) && p.IsGenericType == false);
+                    repositoryTypes.Add((serviceType, implType));
+                }
+            }
+
+            return services.InternalAddRepositories(repositoryTypes, serviceLifetime);
+        }
+        private static IServiceCollection InternalAddRepositories(this IServiceCollection services, IEnumerable<(Type ServiceType, Type ImplType)> repositoryTypes, ServiceLifetime serviceLifetime)
+        {
             services.TryAddSingleton<IDbConnectionFactory, DbConnectionFactory>();
+            services.TryAddSingleton<ISqlGeneratorFactory, SqlGeneratorFactory>();
+            services.TryAddSingleton<IRepositoryFactory, RepositoryFactory>();
+            services.TryAddSingleton<IUnitOfWorkFactory, UnitOfWorkFactory>();
+
             foreach (var item in repositoryTypes)
             {
                 var serviceDescriptor = ServiceDescriptor.Describe(item.ServiceType, item.ImplType, serviceLifetime);
