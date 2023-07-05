@@ -31,7 +31,7 @@
         /// <param name="useTransaction"></param>
         /// <param name="tableName"></param>
         /// <returns></returns>
-        int Update(string setClause, string? whereClause, object param, bool useTransaction = false, string? tableName = null);
+        int Update(string setClause, string whereClause, object param, bool useTransaction = false, string? tableName = null);
 
         /// <summary>
         /// Update a record based on the primary key.
@@ -84,21 +84,19 @@
         /// </summary>
         /// <typeparam name="TId"></typeparam>
         /// <param name="id"></param>
-        /// <param name="idColumnName">If null use primary key.</param>
         /// <param name="tableName"></param>
         /// <returns></returns>
-        int DeleteById<TId>(TId id, string? idColumnName = null, string? tableName = null);
+        int DeleteById<TId>(TId id, string? tableName = null);
 
         /// <summary>
         /// Bulk delete records based on the id.
         /// </summary>
         /// <typeparam name="TId"></typeparam>
         /// <param name="ids"></param>
-        /// <param name="idColumnName">If null use primary key.</param>
         /// <param name="useTransaction"></param>
         /// <param name="tableName"></param>
         /// <returns></returns>
-        int DeleteByIds<TId>(IEnumerable<TId> ids, string? idColumnName = null, bool useTransaction = false, string? tableName = null);
+        int DeleteByIds<TId>(IEnumerable<TId> ids, bool useTransaction = false, string? tableName = null);
         #endregion
 
         #region InsertOrReplace

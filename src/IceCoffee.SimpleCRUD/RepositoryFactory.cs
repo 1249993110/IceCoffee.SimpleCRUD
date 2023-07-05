@@ -9,9 +9,9 @@
             _serviceProvider = serviceProvider;
         }
 
-        public override IRepository GetRepository(Type type)
+        public override IRepository? GetRepository(Type type)
         {
-            return (IRepository)_serviceProvider.GetService(type);
+            return _serviceProvider.GetService(type) as IRepository;
         }
     }
 }

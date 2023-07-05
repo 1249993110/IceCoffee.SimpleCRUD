@@ -6,7 +6,7 @@ namespace IceCoffee.SimpleCRUD
 {
     public abstract class DbConnectionFactoryBase : IDbConnectionFactory
     {
-        private readonly ConcurrentDictionary<string, DbProviderFactory> _cachedDbProviderFactory;
+        private readonly ConcurrentDictionary<string, DbProviderFactory> _cachedDbProviderFactory = new();
 
         public abstract DbConnectionOptions GetOptions(string connectionName);
 

@@ -2,11 +2,11 @@
 {
     public abstract class RepositoryFactoryBase : IRepositoryFactory
     {
-        public abstract IRepository GetRepository(Type type);
+        public abstract IRepository? GetRepository(Type type);
 
-        public virtual TRepository GetRepository<TRepository>() where TRepository : IRepository
+        public virtual TRepository? GetRepository<TRepository>() where TRepository : class, IRepository
         {
-            return (TRepository)GetRepository(typeof(TRepository));
+            return GetRepository(typeof(TRepository)) as TRepository;
         }
     }
 }

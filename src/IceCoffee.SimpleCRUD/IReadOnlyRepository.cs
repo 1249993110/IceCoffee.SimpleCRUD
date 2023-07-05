@@ -8,10 +8,9 @@
         /// </summary>
         /// <typeparam name="TKey"></typeparam>
         /// <param name="id"></param>
-        /// <param name="idColumnName">If null use primary key.</param>
         /// <param name="tableName"></param>
         /// <returns></returns>
-        TEntity GetById<TKey>(TKey id, string? idColumnName = null, string? tableName = null);
+        TEntity? GetById<TKey>(TKey id, string? tableName = null);
 
         /// <summary>
         /// Get records based on the clause and param.
@@ -31,7 +30,7 @@
         /// <param name="param">The parameters to pass, if any.</param>
         /// <param name="tableName"></param>
         /// <returns></returns>
-        TEntity GetFirstOrDefault(string? whereClause = null, string? orderByClause = null, object? param = null, string? tableName = null);
+        TEntity? GetFirstOrDefault(string? whereClause = null, string? orderByClause = null, object? param = null, string? tableName = null);
 
         /// <summary>
         /// Get a paged list of records based on the clause and param.

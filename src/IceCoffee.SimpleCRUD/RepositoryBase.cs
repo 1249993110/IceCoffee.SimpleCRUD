@@ -1,9 +1,10 @@
 ﻿using Dapper;
 using System.Data;
+using static Dapper.SqlMapper;
 
 namespace IceCoffee.SimpleCRUD
 {
-    public abstract class RepositoryBase : IRepository
+    public abstract class RepositoryBase : IRepository, ICloneable
     {
         private readonly IDbConnectionFactory _dbConnectionFactory;
         private readonly string _connectionName;
@@ -30,35 +31,111 @@ namespace IceCoffee.SimpleCRUD
             _unitOfWork = unitOfWork;
         }
 
-        private IDbConnection DbConnection => _unitOfWork?.DbConnection ?? _dbConnectionFactory.CreateConnection(_connectionName);
-        private IDbTransaction? DbTransaction => _unitOfWork?.DbTransaction;
+        private (IDbConnection conn, IDbTransaction? tran) GetDbContext(bool useTransaction = false)
+        {
+            if(_unitOfWork != null)
+            {
+                return (_unitOfWork.DbConnection, _unitOfWork.DbTransaction);
+            }
+
+            var connection = _dbConnectionFactory.CreateConnection(_connectionName);
+            return (connection, useTransaction ? connection.BeginTransaction() : null);
+        }
+
+        protected virtual int Execute(string sql, object? param = null, bool useTransaction = false)
+        {
+            var (conn, tran) = GetDbContext(useTransaction);
+            try
+            {
+                int result = conn.Execute(sql, param, tran);
+                if (useTransaction && _unitOfWork == null)
+                {
+                    tran?.Commit();
+                }
+
+                return result;
+            }
+            catch
+            {
+                if (useTransaction && _unitOfWork == null)
+                {
+                    tran?.Rollback();
+                }
+
+                throw;
+            }
+        }
+        protected virtual async Task<int> ExecuteAsync(string sql, object? param = null, bool useTransaction = false)
+        {
+            var (conn, tran) = GetDbContext(useTransaction);
+            try
+            {
+                int result = await conn.ExecuteAsync(sql, param, tran);
+                if (useTransaction && _unitOfWork == null)
+                {
+                    tran?.Commit();
+                }
+
+                return result;
+            }
+            catch
+            {
+                if (useTransaction && _unitOfWork == null)
+                {
+                    tran?.Rollback();
+                }
+
+                throw;
+            }
+        }
 
         protected virtual IEnumerable<TEntity> ExecuteQuery<TEntity>(string sql, object? param = null)
         {
+            var (conn, tran) = GetDbContext();
+            return conn.Query<TEntity>(sql, param, tran);
+        }
+        protected virtual Task<IEnumerable<TEntity>> ExecuteQueryAsync<TEntity>(string sql, object? param = null)
+        {
+            var (conn, tran) = GetDbContext();
+            return conn.QueryAsync<TEntity>(sql, param, tran);
         }
 
-        protected virtual TEntity ExecuteQueryFirstOrDefault<TEntity>(string sql, object? param = null)
+        protected virtual GridReader ExecuteQueryMultiple(string sql, object? param = null)
         {
+            var (conn, tran) = GetDbContext();
+            return conn.QueryMultiple(sql, param, tran);
         }
-
-        protected virtual TEntity ExecuteQuerySingleOrDefault<TEntity>(string sql, object? param = null)
+        protected virtual Task<GridReader> ExecuteQueryMultipleAsync(string sql, object? param = null)
         {
-        }
-
-        protected virtual int Execute(string sql, object? param = null)
-        {
-        }
-
-        protected virtual SqlMapper.GridReader ExecuteMultiple(string sql, object? param = null)
-        {
+            var (conn, tran) = GetDbContext();
+            return conn.QueryMultipleAsync(sql, param, tran);
         }
 
         protected virtual TReturn ExecuteScalar<TReturn>(string sql, object? param = null)
         {
+            var (conn, tran) = GetDbContext();
+            return conn.ExecuteScalar<TReturn>(sql, param, tran);
+        }
+        protected virtual Task<TReturn> ExecuteScalarAsync<TReturn>(string sql, object? param = null)
+        {
+            var (conn, tran) = GetDbContext();
+            return conn.ExecuteScalarAsync<TReturn>(sql, param, tran);
         }
 
-        protected virtual IEnumerable<TReturn> ExecuteProcedure<TReturn>(string procName, DynamicParameters parameters)
+        protected virtual IEnumerable<TEntity> ExecuteProcedure<TEntity>(string procName, DynamicParameters parameters)
         {
+            var (conn, tran) = GetDbContext();
+            return conn.Query<TEntity>(new CommandDefinition(procName, parameters, tran, commandType: CommandType.StoredProcedure));
+        }
+        protected virtual Task<IEnumerable<TEntity>> ExecuteProcedureAsync<TEntity>(string procName, DynamicParameters parameters)
+        {
+            var (conn, tran) = GetDbContext();
+            return conn.QueryAsync<TEntity>(new CommandDefinition(procName, parameters, tran, commandType: CommandType.StoredProcedure));
+        }
+
+        public object Clone()
+        {
+            return this.MemberwiseClone();
         }
     }
 }

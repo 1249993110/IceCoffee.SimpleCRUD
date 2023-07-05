@@ -4,8 +4,8 @@ namespace IceCoffee.SimpleCRUD
 {
     public class UnitOfWork : IUnitOfWork
     {
-        private IDbConnection? _connection;
-        private IDbTransaction? _transaction;
+        private IDbConnection _connection;
+        private IDbTransaction _transaction;
         private readonly IRepositoryFactory _repositoryFactory;
 
         public UnitOfWork(IDbConnection connection, IRepositoryFactory repositoryFactory)
@@ -30,12 +30,11 @@ namespace IceCoffee.SimpleCRUD
             _repositoryFactory = repositoryFactory;
         }
 
-        public IDbConnection? DbConnection => _connection;
-        public IDbTransaction? DbTransaction => _transaction;
+        public IDbConnection DbConnection => _connection;
+        public IDbTransaction DbTransaction => _transaction;
 
         public void Commit()
         {
-#pragma warning disable CS8602 // 解引用可能出现空引用。
             try
             {
                 _transaction.Commit();
@@ -50,7 +49,6 @@ namespace IceCoffee.SimpleCRUD
                 _transaction.Dispose();
                 _transaction = _connection.BeginTransaction();
             }
-#pragma warning restore CS8602 // 解引用可能出现空引用。
         }
 
         private bool _disposed = false;
@@ -67,29 +65,22 @@ namespace IceCoffee.SimpleCRUD
             {
                 if (disposing)
                 {
-                    if (_transaction != null)
-                    {
-                        _transaction.Dispose();
-                        _transaction = null;
-                    }
-                    if (_connection != null)
-                    {
-                        _connection.Dispose();
-                        _connection = null;
-                    }
+                    _transaction.Dispose();
+                    _connection.Dispose();
                 }
 
                 _disposed = true;
             }
         }
 
-        public TRepository GetRepository<TRepository>() where TRepository : IRepository
+        public TRepository GetRepository<TRepository>() where TRepository : class, IRepository
         {
-            var repository = _repositoryFactory.GetRepository<TRepository>();
-            if (repository is RepositoryBase repositoryBase)
+            var tRepository = _repositoryFactory.GetRepository<TRepository>();
+            if (tRepository is RepositoryBase repositoryBase)
             {
-                repositoryBase.SetUnitOfWork(this);
-                return repository;
+                var repository = repositoryBase.Clone();
+                ((RepositoryBase)repository).SetUnitOfWork(this);
+                return (TRepository)repository;
             }
             else
             {
