@@ -78,14 +78,29 @@ namespace IceCoffee.SimpleCRUD
             var tRepository = _repositoryFactory.GetRepository<TRepository>();
             if (tRepository is RepositoryBase repositoryBase)
             {
-                var repository = repositoryBase.Clone();
-                ((RepositoryBase)repository).SetUnitOfWork(this);
-                return (TRepository)repository;
+                repositoryBase.SetUnitOfWork(this);
             }
             else
             {
                 throw new InvalidOperationException($"The repository: {typeof(TRepository).Name} must inherit from RepositoryBase.");
             }
+
+            return tRepository;
+        }
+
+        public IRepository<TEntity> GetGenericRepository<TEntity>()
+        {
+            var tRepository = _repositoryFactory.GetGenericRepository<TEntity>();
+            if (tRepository is RepositoryBase repositoryBase)
+            {
+                repositoryBase.SetUnitOfWork(this);
+            }
+            else
+            {
+                throw new InvalidOperationException($"The repository: {tRepository.GetType().Name} must inherit from RepositoryBase.");
+            }
+
+            return tRepository;
         }
     }
 }

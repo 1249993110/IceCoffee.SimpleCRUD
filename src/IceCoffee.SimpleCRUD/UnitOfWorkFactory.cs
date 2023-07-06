@@ -4,9 +4,16 @@ namespace IceCoffee.SimpleCRUD
 {
     public class UnitOfWorkFactory : IUnitOfWorkFactory
     {
-        private readonly IDbConnectionFactory _dbConnectionFactory;
-        private readonly IRepositoryFactory _repositoryFactory;
+        private static readonly Lazy<UnitOfWorkFactory> _default = new(() => new UnitOfWorkFactory(DbConnectionFactory.Default), true);
+        public static UnitOfWorkFactory Default => _default.Value;
 
+        private readonly IDbConnectionFactory _dbConnectionFactory;
+        private readonly IRepositoryFactory? _repositoryFactory;
+
+        public UnitOfWorkFactory(IDbConnectionFactory dbConnectionFactory)
+        {
+            _dbConnectionFactory = dbConnectionFactory;
+        }
         public UnitOfWorkFactory(IDbConnectionFactory dbConnectionFactory, IRepositoryFactory repositoryFactory)
         {
             _dbConnectionFactory = dbConnectionFactory;
@@ -26,13 +33,13 @@ namespace IceCoffee.SimpleCRUD
         public IUnitOfWork Create(string connectionName)
         {
             var connection = _dbConnectionFactory.CreateConnection(connectionName);
-            return new UnitOfWork(connection, _repositoryFactory);
+            return new UnitOfWork(connection, _repositoryFactory ?? new RepositoryFactory(connectionName));
         }
 
         public IUnitOfWork Create(string connectionName, IsolationLevel il)
         {
             var connection = _dbConnectionFactory.CreateConnection(connectionName);
-            return new UnitOfWork(connection, _repositoryFactory, il);
+            return new UnitOfWork(connection, _repositoryFactory ?? new RepositoryFactory(connectionName), il);
         }
 
         public IUnitOfWork Create(Enum connectionName)

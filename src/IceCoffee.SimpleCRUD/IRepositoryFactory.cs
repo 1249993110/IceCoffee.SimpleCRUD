@@ -2,8 +2,8 @@
 {
     public interface IRepositoryFactory
     {
-        IRepository? GetRepository(Type type);
+        TRepository GetRepository<TRepository>() where TRepository : class, IRepository;
 
-        TRepository? GetRepository<TRepository>() where TRepository : class, IRepository;
+        IRepository<TEntity> GetGenericRepository<TEntity>();
     }
 }
