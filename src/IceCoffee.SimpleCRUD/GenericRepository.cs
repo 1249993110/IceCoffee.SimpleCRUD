@@ -4,7 +4,7 @@ namespace IceCoffee.SimpleCRUD
 {
     public class GenericRepository<TEntity> : RepositoryBase<TEntity>
     {
-        public GenericRepository() : base(DbConnectionFactory.Default, SqlGeneratorFactory.Default)
+        public GenericRepository() : this(string.Empty)
         {
         }
 

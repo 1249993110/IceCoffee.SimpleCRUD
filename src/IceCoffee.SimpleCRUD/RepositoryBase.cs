@@ -16,16 +16,6 @@ namespace IceCoffee.SimpleCRUD
             _connectionName = connectionName;
         }
 
-        public RepositoryBase(IDbConnectionFactory dbConnectionFactory)
-             : this(dbConnectionFactory, string.Empty)
-        {
-        }
-
-        public RepositoryBase(IDbConnectionFactory dbConnectionFactory, Enum connectionName)
-            : this(dbConnectionFactory, connectionName.ToString())
-        {
-        }
-
         internal void SetUnitOfWork(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
@@ -39,10 +29,17 @@ namespace IceCoffee.SimpleCRUD
             }
 
             var connection = _dbConnectionFactory.CreateConnection(_connectionName);
-            return (connection, useTransaction ? connection.BeginTransaction() : null);
+            if(useTransaction)
+            {
+                connection.Open();
+                return (connection, connection.BeginTransaction());
+            }
+
+            return (connection, null);
         }
 
-        protected virtual int Execute(string sql, object? param = null, bool useTransaction = false)
+#pragma warning disable CS8602 // 解引用可能出现空引用。
+        public virtual int Execute(string sql, object? param = null, bool useTransaction = false)
         {
             var (conn, tran) = GetDbContext(useTransaction);
             try
@@ -50,7 +47,9 @@ namespace IceCoffee.SimpleCRUD
                 int result = conn.Execute(sql, param, tran);
                 if (useTransaction && _unitOfWork == null)
                 {
-                    tran?.Commit();
+                    tran.Commit();
+                    tran.Dispose();
+                    conn.Dispose();
                 }
 
                 return result;
@@ -59,13 +58,14 @@ namespace IceCoffee.SimpleCRUD
             {
                 if (useTransaction && _unitOfWork == null)
                 {
-                    tran?.Rollback();
+                    tran.Rollback();
+                    conn.Dispose();
                 }
 
                 throw;
             }
         }
-        protected virtual async Task<int> ExecuteAsync(string sql, object? param = null, bool useTransaction = false)
+        public virtual async Task<int> ExecuteAsync(string sql, object? param = null, bool useTransaction = false)
         {
             var (conn, tran) = GetDbContext(useTransaction);
             try
@@ -73,7 +73,9 @@ namespace IceCoffee.SimpleCRUD
                 int result = await conn.ExecuteAsync(sql, param, tran);
                 if (useTransaction && _unitOfWork == null)
                 {
-                    tran?.Commit();
+                    tran.Commit();
+                    tran.Dispose();
+                    conn.Dispose();
                 }
 
                 return result;
@@ -82,52 +84,54 @@ namespace IceCoffee.SimpleCRUD
             {
                 if (useTransaction && _unitOfWork == null)
                 {
-                    tran?.Rollback();
+                    tran.Rollback();
+                    conn.Dispose();
                 }
 
                 throw;
             }
         }
+#pragma warning restore CS8602 // 解引用可能出现空引用。
 
-        protected virtual IEnumerable<TEntity> ExecuteQuery<TEntity>(string sql, object? param = null)
+        public virtual IEnumerable<TEntity> ExecuteQuery<TEntity>(string sql, object? param = null)
         {
             var (conn, tran) = GetDbContext();
             return conn.Query<TEntity>(sql, param, tran);
         }
-        protected virtual Task<IEnumerable<TEntity>> ExecuteQueryAsync<TEntity>(string sql, object? param = null)
+        public virtual Task<IEnumerable<TEntity>> ExecuteQueryAsync<TEntity>(string sql, object? param = null)
         {
             var (conn, tran) = GetDbContext();
             return conn.QueryAsync<TEntity>(sql, param, tran);
         }
 
-        protected virtual GridReader ExecuteQueryMultiple(string sql, object? param = null)
+        public virtual GridReader ExecuteQueryMultiple(string sql, object? param = null)
         {
             var (conn, tran) = GetDbContext();
             return conn.QueryMultiple(sql, param, tran);
         }
-        protected virtual Task<GridReader> ExecuteQueryMultipleAsync(string sql, object? param = null)
+        public virtual Task<GridReader> ExecuteQueryMultipleAsync(string sql, object? param = null)
         {
             var (conn, tran) = GetDbContext();
             return conn.QueryMultipleAsync(sql, param, tran);
         }
 
-        protected virtual TReturn ExecuteScalar<TReturn>(string sql, object? param = null)
+        public virtual TReturn ExecuteScalar<TReturn>(string sql, object? param = null)
         {
             var (conn, tran) = GetDbContext();
             return conn.ExecuteScalar<TReturn>(sql, param, tran);
         }
-        protected virtual Task<TReturn> ExecuteScalarAsync<TReturn>(string sql, object? param = null)
+        public virtual Task<TReturn> ExecuteScalarAsync<TReturn>(string sql, object? param = null)
         {
             var (conn, tran) = GetDbContext();
             return conn.ExecuteScalarAsync<TReturn>(sql, param, tran);
         }
 
-        protected virtual IEnumerable<TEntity> ExecuteProcedure<TEntity>(string procName, DynamicParameters parameters)
+        public virtual IEnumerable<TEntity> ExecuteProcedure<TEntity>(string procName, DynamicParameters parameters)
         {
             var (conn, tran) = GetDbContext();
             return conn.Query<TEntity>(new CommandDefinition(procName, parameters, tran, commandType: CommandType.StoredProcedure));
         }
-        protected virtual Task<IEnumerable<TEntity>> ExecuteProcedureAsync<TEntity>(string procName, DynamicParameters parameters)
+        public virtual Task<IEnumerable<TEntity>> ExecuteProcedureAsync<TEntity>(string procName, DynamicParameters parameters)
         {
             var (conn, tran) = GetDbContext();
             return conn.QueryAsync<TEntity>(new CommandDefinition(procName, parameters, tran, commandType: CommandType.StoredProcedure));

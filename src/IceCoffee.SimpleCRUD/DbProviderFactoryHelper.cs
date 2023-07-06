@@ -21,7 +21,7 @@ namespace IceCoffee.SimpleCRUD
             }
             catch { }
 
-            string path = Path.Combine(AppContext.BaseDirectory, assemblyName, ".dll");
+            string path = Path.Combine(AppContext.BaseDirectory, assemblyName + ".dll");
             assembly = Assembly.LoadFrom(path);
             return assembly;
         }
