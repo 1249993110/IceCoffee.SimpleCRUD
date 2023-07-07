@@ -1,5 +1,6 @@
 ﻿using Dapper;
 using System.Data;
+using System.Diagnostics;
 using static Dapper.SqlMapper;
 
 namespace IceCoffee.SimpleCRUD
@@ -7,13 +8,13 @@ namespace IceCoffee.SimpleCRUD
     public abstract class RepositoryBase : IRepository, ICloneable
     {
         private readonly IDbConnectionFactory _dbConnectionFactory;
-        private readonly string _connectionName;
+        private readonly string _dbAliase;
         private IUnitOfWork? _unitOfWork;
 
-        public RepositoryBase(IDbConnectionFactory dbConnectionFactory, string connectionName)
+        public RepositoryBase(IDbConnectionFactory dbConnectionFactory, string dbAliase)
         {
             _dbConnectionFactory = dbConnectionFactory;
-            _connectionName = connectionName;
+            _dbAliase = dbAliase;
         }
 
         internal void SetUnitOfWork(IUnitOfWork unitOfWork)
@@ -28,7 +29,7 @@ namespace IceCoffee.SimpleCRUD
                 return (_unitOfWork.DbConnection, _unitOfWork.DbTransaction);
             }
 
-            var connection = _dbConnectionFactory.CreateConnection(_connectionName);
+            var connection = _dbConnectionFactory.CreateConnection(_dbAliase);
             if(useTransaction)
             {
                 connection.Open();
@@ -38,31 +39,34 @@ namespace IceCoffee.SimpleCRUD
             return (connection, null);
         }
 
-#pragma warning disable CS8602 // 解引用可能出现空引用。
         public virtual int Execute(string sql, object? param = null, bool useTransaction = false)
         {
             var (conn, tran) = GetDbContext(useTransaction);
             try
             {
                 int result = conn.Execute(sql, param, tran);
-                if (useTransaction && _unitOfWork == null)
+                if (_unitOfWork == null)
                 {
-                    tran.Commit();
-                    tran.Dispose();
-                    conn.Dispose();
+                    tran?.Commit();
                 }
 
                 return result;
             }
             catch
             {
-                if (useTransaction && _unitOfWork == null)
+                if (_unitOfWork == null)
                 {
-                    tran.Rollback();
-                    conn.Dispose();
+                    tran?.Rollback();
                 }
 
                 throw;
+            }
+            finally
+            {
+                if(_unitOfWork == null)
+                {
+                    tran?.Dispose();
+                }
             }
         }
         public virtual async Task<int> ExecuteAsync(string sql, object? param = null, bool useTransaction = false)
@@ -71,27 +75,30 @@ namespace IceCoffee.SimpleCRUD
             try
             {
                 int result = await conn.ExecuteAsync(sql, param, tran);
-                if (useTransaction && _unitOfWork == null)
+                if (_unitOfWork == null)
                 {
-                    tran.Commit();
-                    tran.Dispose();
-                    conn.Dispose();
+                    tran?.Commit();
                 }
 
                 return result;
             }
             catch
             {
-                if (useTransaction && _unitOfWork == null)
+                if (_unitOfWork == null)
                 {
-                    tran.Rollback();
-                    conn.Dispose();
+                    tran?.Rollback();
                 }
 
                 throw;
             }
+            finally
+            {
+                if (_unitOfWork == null)
+                {
+                    tran?.Dispose();
+                }
+            }
         }
-#pragma warning restore CS8602 // 解引用可能出现空引用。
 
         public virtual IEnumerable<TEntity> ExecuteQuery<TEntity>(string sql, object? param = null)
         {

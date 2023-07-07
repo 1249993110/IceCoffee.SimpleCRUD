@@ -11,9 +11,9 @@ namespace IceCoffee.SimpleCRUD.DependencyInjection
             _optionsMonitor = optionsMonitor;
         }
 
-        public override DbConnectionOptions GetOptions(string connectionName)
+        public override DbConnectionOptions GetOptions(string dbAliase)
         {
-            return _optionsMonitor.Get(connectionName);
+            return _optionsMonitor.Get(dbAliase);
         }
     }
 }

@@ -30,26 +30,16 @@ namespace IceCoffee.SimpleCRUD
             return Create(string.Empty, il);
         }
 
-        public IUnitOfWork Create(string connectionName)
+        public IUnitOfWork Create(string dbAliase)
         {
-            var connection = _dbConnectionFactory.CreateConnection(connectionName);
-            return new UnitOfWork(connection, _repositoryFactory ?? new RepositoryFactory(connectionName));
+            var connection = _dbConnectionFactory.CreateConnection(dbAliase);
+            return new UnitOfWork(connection, _repositoryFactory ?? new RepositoryFactory(dbAliase));
         }
 
-        public IUnitOfWork Create(string connectionName, IsolationLevel il)
+        public IUnitOfWork Create(string dbAliase, IsolationLevel il)
         {
-            var connection = _dbConnectionFactory.CreateConnection(connectionName);
-            return new UnitOfWork(connection, _repositoryFactory ?? new RepositoryFactory(connectionName), il);
-        }
-
-        public IUnitOfWork Create(Enum connectionName)
-        {
-            return Create(connectionName.ToString());
-        }
-
-        public IUnitOfWork Create(Enum connectionName, IsolationLevel il)
-        {
-            return Create(connectionName.ToString(), il);
+            var connection = _dbConnectionFactory.CreateConnection(dbAliase);
+            return new UnitOfWork(connection, _repositoryFactory ?? new RepositoryFactory(dbAliase), il);
         }
     }
 }

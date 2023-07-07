@@ -20,31 +20,16 @@ namespace IceCoffee.SimpleCRUD
         /// <summary>
         /// Create a new unit of work.
         /// </summary>
-        /// <param name="connectionName"></param>
+        /// <param name="dbAliase"></param>
         /// <returns></returns>
-        IUnitOfWork Create(string connectionName);
+        IUnitOfWork Create(string dbAliase);
 
         /// <summary>
         /// Create a new unit of work.
         /// </summary>
-        /// <param name="connectionName"></param>
+        /// <param name="dbAliase"></param>
         /// <param name="il"></param>
         /// <returns></returns>
-        IUnitOfWork Create(string connectionName, IsolationLevel il);
-
-        /// <summary>
-        /// Create a new unit of work.
-        /// </summary>
-        /// <param name="connectionName"></param>
-        /// <returns></returns>
-        IUnitOfWork Create(Enum connectionName);
-
-        /// <summary>
-        /// Create a new unit of work.
-        /// </summary>
-        /// <param name="connectionName"></param>
-        /// <param name="il"></param>
-        /// <returns></returns>
-        IUnitOfWork Create(Enum connectionName, IsolationLevel il);
+        IUnitOfWork Create(string dbAliase, IsolationLevel il);
     }
 }

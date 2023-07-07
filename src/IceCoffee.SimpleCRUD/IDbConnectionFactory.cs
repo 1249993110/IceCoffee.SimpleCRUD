@@ -4,12 +4,8 @@ namespace IceCoffee.SimpleCRUD
 {
     public interface IDbConnectionFactory
     {
-        DbConnectionOptions GetOptions(string connectionName);
+        DbConnectionOptions GetOptions(string dbAliase);
 
-        DbConnectionOptions GetOptions(Enum connectionName);
-
-        IDbConnection CreateConnection(string connectionName);
-
-        IDbConnection CreateConnection(Enum connectionName);
+        IDbConnection CreateConnection(string dbAliase);
     }
 }

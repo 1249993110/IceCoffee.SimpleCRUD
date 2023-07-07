@@ -16,9 +16,9 @@
             _optionsDict = optionsDict;
         }
 
-        public override DbConnectionOptions GetOptions(string connectionName)
+        public override DbConnectionOptions GetOptions(string dbAliase)
         {
-            return _optionsDict[connectionName];
+            return _optionsDict[dbAliase];
         }
 
         public virtual DbConnectionFactory ConfigureOptions(DbConnectionOptions options)
@@ -26,10 +26,20 @@
             return ConfigureOptions(string.Empty, options);
         }
 
-        public virtual DbConnectionFactory ConfigureOptions(string connectionName, DbConnectionOptions options)
+        public virtual DbConnectionFactory ConfigureOptions(string dbAliase, DbConnectionOptions options)
         {
-            _optionsDict[connectionName] = options;
+            _optionsDict[dbAliase] = options;
             return this;
+        }
+
+        public virtual DbConnectionFactory ConfigureOptions(string connectionString, DbType dbType)
+        {
+            return ConfigureOptions(string.Empty, new DbConnectionOptions() { ConnectionString = connectionString, DbType = dbType });
+        }
+
+        public virtual DbConnectionFactory ConfigureOptions(string dbAliase, string connectionString, DbType dbType)
+        {
+            return ConfigureOptions(dbAliase, new DbConnectionOptions() { ConnectionString = connectionString, DbType = dbType });
         }
     }
 }

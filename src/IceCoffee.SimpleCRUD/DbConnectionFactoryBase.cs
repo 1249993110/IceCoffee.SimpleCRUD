@@ -8,12 +8,12 @@ namespace IceCoffee.SimpleCRUD
     {
         private readonly ConcurrentDictionary<string, DbProviderFactory> _cachedDbProviderFactory = new();
 
-        public abstract DbConnectionOptions GetOptions(string connectionName);
+        public abstract DbConnectionOptions GetOptions(string dbAliase);
 
-        public virtual IDbConnection CreateConnection(string connectionName)
+        public virtual IDbConnection CreateConnection(string dbAliase)
         {
-            var options = GetOptions(connectionName);
-            var dbProviderFactory = _cachedDbProviderFactory.GetOrAdd(connectionName, (connectionName) =>
+            var options = GetOptions(dbAliase);
+            var dbProviderFactory = _cachedDbProviderFactory.GetOrAdd(dbAliase, (dbAliase) =>
             {
                 return DbProviderFactoryHelper.GetDbProviderFactory(options.DbType);
             });
@@ -21,16 +21,6 @@ namespace IceCoffee.SimpleCRUD
             var connection = dbProviderFactory.CreateConnection();
             connection.ConnectionString = options.ConnectionString;
             return connection;
-        }
-
-        public virtual DbConnectionOptions GetOptions(Enum connectionName)
-        {
-            return GetOptions(connectionName.ToString());
-        }
-
-        public virtual IDbConnection CreateConnection(Enum connectionName)
-        {
-            return CreateConnection(connectionName.ToString());
         }
     }
 }

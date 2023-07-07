@@ -8,7 +8,7 @@ namespace IceCoffee.SimpleCRUD
         {
         }
 
-        public GenericRepository(string connectionName) : base(DbConnectionFactory.Default, SqlGeneratorFactory.Default, connectionName)
+        public GenericRepository(string dbAliase) : base(DbConnectionFactory.Default, SqlGeneratorFactory.Default, dbAliase)
         {
         }
     }

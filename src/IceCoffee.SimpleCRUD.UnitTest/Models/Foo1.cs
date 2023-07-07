@@ -8,11 +8,13 @@ namespace IceCoffee.SimpleCRUD.UnitTest.Models
         [PrimaryKey]
         public int Id { get; set; }
 
-        [Column("Name")]
+        [PrimaryKey, Column("Name")]
         public string Name_ { get; set; }
 
-        [IgnoreInsert, IgnoreUpdate, IgnoreSelect]
         public int? Age { get; set; }
+
+        [IgnoreInsert, IgnoreUpdate, IgnoreSelect]
+        public string? Address { get; set; }
 
         [NotMapped]
         public string? Sex { get; set; }

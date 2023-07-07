@@ -6,18 +6,13 @@ namespace IceCoffee.SimpleCRUD
     {
         protected readonly ISqlGenerator SqlGenerator;
 
-        public RepositoryBase(IDbConnectionFactory dbConnectionFactory, ISqlGeneratorFactory sqlGeneratorFactory, string connectionName) : base(dbConnectionFactory, connectionName)
+        public RepositoryBase(IDbConnectionFactory dbConnectionFactory, ISqlGeneratorFactory sqlGeneratorFactory, string dbAliase) : base(dbConnectionFactory, dbAliase)
         {
-            SqlGenerator = sqlGeneratorFactory.GetSqlGenerator(dbConnectionFactory.GetOptions(connectionName).DbType, typeof(TEntity));
+            SqlGenerator = sqlGeneratorFactory.GetSqlGenerator(dbConnectionFactory.GetOptions(dbAliase).DbType, typeof(TEntity));
         }
 
         public RepositoryBase(IDbConnectionFactory dbConnectionFactory, ISqlGeneratorFactory sqlGeneratorFactory)
             : this(dbConnectionFactory, sqlGeneratorFactory, string.Empty)
-        {
-        }
-
-        public RepositoryBase(IDbConnectionFactory dbConnectionFactory, ISqlGeneratorFactory sqlGeneratorFactory, Enum connectionName)
-            : this(dbConnectionFactory, sqlGeneratorFactory, connectionName.ToString())
         {
         }
 
@@ -74,7 +69,6 @@ namespace IceCoffee.SimpleCRUD
         {
             string sql = SqlGenerator.GetRecordCountStatement(whereClause, tableName) + ";" 
                 + SqlGenerator.GetSelectPagedStatement(pageNumber, pageSize, whereClause, orderByClause, tableName);
-
             using var multi = base.ExecuteQueryMultiple(sql, param);
             var total = multi.ReadSingle<int>();
             var items = total > 0 ? multi.Read<TEntity>() : Enumerable.Empty<TEntity>();
@@ -196,7 +190,6 @@ namespace IceCoffee.SimpleCRUD
         {
             string sql = SqlGenerator.GetRecordCountStatement(whereClause, tableName) + ";"
                 + SqlGenerator.GetSelectPagedStatement(pageNumber, pageSize, whereClause, orderByClause, tableName);
-
             using var multi = await base.ExecuteQueryMultipleAsync(sql, param);
             var total = await multi.ReadSingleAsync<int>();
             var items = total > 0 ? await multi.ReadAsync<TEntity>() : Enumerable.Empty<TEntity>();

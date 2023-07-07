@@ -8,13 +8,13 @@
 
         public override string GetInsertOrIgnoreStatement(string? tableName = null)
         {
-            string sql = string.Format("INSERT OR IGNORE INTO {0} {1}", tableName, InsertIntoClause);
+            string sql = string.Format("INSERT OR IGNORE INTO {0} {1}", tableName ?? TableName, InsertIntoClause);
             return sql;
         }
 
         public override string GetInsertOrReplaceStatement(string? tableName = null)
         {
-            string sql = string.Format("REPLACE INTO {0} {1}", tableName, InsertIntoClause);
+            string sql = string.Format("REPLACE INTO {0} {1}", tableName ?? TableName, InsertIntoClause);
             return sql;
         }
 

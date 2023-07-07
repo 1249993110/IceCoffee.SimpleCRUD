@@ -28,12 +28,12 @@ namespace IceCoffee.SimpleCRUD.DependencyInjection
 
         public static IServiceCollection AddRepositories(
             this IServiceCollection services,
-            string connectionName,
+            string dbAliase,
             Action<DbConnectionOptions> configure,
             Assembly assembly,
             ServiceLifetime serviceLifetime = ServiceLifetime.Singleton)
         {
-            services.AddOptions<DbConnectionOptions>(connectionName).Configure(configure);
+            services.AddOptions<DbConnectionOptions>(dbAliase).Configure(configure);
             return services.InternalAddRepositories(assembly, serviceLifetime);
         }
 
@@ -48,12 +48,12 @@ namespace IceCoffee.SimpleCRUD.DependencyInjection
 
         public static IServiceCollection AddRepositories(
             this IServiceCollection services,
-            string connectionName,
+            string dbAliase,
             Action<DbConnectionOptions> configure,
             IEnumerable<(Type ServiceType, Type ImplType)> repositoryTypes,
             ServiceLifetime serviceLifetime = ServiceLifetime.Singleton)
         {
-            services.AddOptions<DbConnectionOptions>(connectionName).Configure(configure);
+            services.AddOptions<DbConnectionOptions>(dbAliase).Configure(configure);
             return services.InternalAddRepositories(repositoryTypes, serviceLifetime);
         }
 
@@ -72,12 +72,12 @@ namespace IceCoffee.SimpleCRUD.DependencyInjection
 
         public static IServiceCollection AddRepositories(
             this IServiceCollection services,
-            string connectionName,
+            string dbAliase,
             string configurationSectionPath,
             Assembly assembly,
             ServiceLifetime serviceLifetime = ServiceLifetime.Singleton)
         {
-            services.AddOptions<DbConnectionOptions>(connectionName).BindConfiguration(configurationSectionPath);
+            services.AddOptions<DbConnectionOptions>(dbAliase).BindConfiguration(configurationSectionPath);
             return services.InternalAddRepositories(assembly, serviceLifetime);
         }
 
@@ -92,12 +92,12 @@ namespace IceCoffee.SimpleCRUD.DependencyInjection
 
         public static IServiceCollection AddRepositories(
             this IServiceCollection services,
-            string connectionName,
+            string dbAliase,
             string configurationSectionPath,
             IEnumerable<(Type ServiceType, Type ImplType)> repositoryTypes,
             ServiceLifetime serviceLifetime = ServiceLifetime.Singleton)
         {
-            services.AddOptions<DbConnectionOptions>(connectionName).BindConfiguration(configurationSectionPath);
+            services.AddOptions<DbConnectionOptions>(dbAliase).BindConfiguration(configurationSectionPath);
             return services.InternalAddRepositories(repositoryTypes, serviceLifetime);
         }
 

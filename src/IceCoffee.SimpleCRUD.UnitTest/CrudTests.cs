@@ -1,8 +1,5 @@
 using IceCoffee.SimpleCRUD.UnitTest.Models;
-using Microsoft.Data.Sqlite;
 using System.Data.Common;
-using System.Xml.Linq;
-using static Dapper.SqlMapper;
 
 namespace IceCoffee.SimpleCRUD.UnitTest
 {
@@ -10,6 +7,7 @@ namespace IceCoffee.SimpleCRUD.UnitTest
     public class CrudTests
     {
         private GenericRepository<Foo> _repository;
+
         [SetUp]
         public void Setup()
         {
@@ -25,8 +23,10 @@ namespace IceCoffee.SimpleCRUD.UnitTest
 
         [Test]
         [Order(0)]
-        public void Test()
+        public void CrudTest()
         {
+            _repository.Delete("1=1");
+
             var entity = new Foo() { Id = 1, Name = "Name1" };
             int count = _repository.Insert(entity);
             Assert.That(count, Is.EqualTo(1));
@@ -34,7 +34,6 @@ namespace IceCoffee.SimpleCRUD.UnitTest
             var entities = new Foo[] { new Foo() { Id = 2, Name = "Name2" }, new Foo() { Id = 3, Name = "Name3" } };
             count = _repository.Insert(entities);
             Assert.That(count, Is.EqualTo(entities.Length));
-
 
             Assert.Catch<DbException>(() =>
             {
@@ -79,12 +78,12 @@ namespace IceCoffee.SimpleCRUD.UnitTest
             Assert.That(count, Is.EqualTo(2));
 
             _repository.InsertOrIgnore(new Foo() { Id = 2, Name = "Name2" });
-            _repository.InsertOrIgnore(new Foo[] { new Foo() { Id = 2, Name = "Name2" } , new Foo() { Id = 3, Name = "Name3" } });
+            _repository.InsertOrIgnore(new Foo[] { new Foo() { Id = 2, Name = "Name2" }, new Foo() { Id = 3, Name = "Name3" } });
 
             Assert.That(_repository.GetFirstOrDefault(orderByClause: "Id DESC")?.Id, Is.EqualTo(3));
             Assert.That(_repository.GetList().Count(), Is.EqualTo(3));
 
-            _repository.Update(new Foo() { Id = 1, Age = 18 });
+            _repository.Update(new Foo() { Id = 1, Name = "Name1", Age = 18 });
             Assert.That(_repository.GetById(1)?.Age, Is.EqualTo(18));
 
             _repository.InsertOrReplace(new Foo() { Id = 2, Name = "Name2", Age = 20 });
@@ -93,6 +92,29 @@ namespace IceCoffee.SimpleCRUD.UnitTest
             _repository.InsertOrReplace(new Foo[] { new Foo() { Id = 3, Name = "Name3", Age = 30 }, new Foo() { Id = 4, Name = "Name4", Age = 40 } });
             Assert.That(_repository.GetById(3)?.Age, Is.EqualTo(30));
             Assert.That(_repository.GetById(4)?.Age, Is.EqualTo(40));
+        }
+
+        [Test]
+        [Order(1)]
+        public void UnitOfWorkTest()
+        {
+            _repository.Delete("1=1");
+
+            using (IUnitOfWork uow = UnitOfWorkFactory.Default.Create(string.Empty))
+            {
+                var repository = uow.GetGenericRepository<Foo1>();
+                int count = repository.Insert(new Foo1() { Id = 1, Name_ = "Name1" });
+                Assert.That(count, Is.EqualTo(1));
+                uow.Commit();
+            }
+
+            using (IUnitOfWork uow = UnitOfWorkFactory.Default.Create(string.Empty))
+            {
+                var repository = uow.GetGenericRepository<Foo1>();
+                int count = repository.Insert(new Foo1() { Id = 2, Name_ = "Name2" });
+                Assert.That(count, Is.EqualTo(1));
+                uow.Commit();
+            }
         }
     }
 }
