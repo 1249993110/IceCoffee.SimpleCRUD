@@ -81,7 +81,7 @@ public class Foo
 
 #### 5. CRUD
 ``` csharp
-var repo = new Repository<Student>();
+var repo = new GenericRepository<Foo>();
 
 // Get by ID
 var entity = repo.GetById(1);
@@ -123,8 +123,8 @@ string dbAliase2 = "dbStoreB";
 DbConnectionFactory.Default.ConfigureOptions(dbAliase1, connectionString1, DbType.SQLite);
 DbConnectionFactory.Default.ConfigureOptions(dbAliase2, connectionString2, DbType.SQLite);
 
-var repository1 = new GenericRepository<Student>(dbAliase1); 
-var repository2 = new GenericRepository<Student>(dbAliase2);
+var repository1 = new GenericRepository<Foo>(dbAliase1); 
+var repository2 = new GenericRepository<Foo>(dbAliase2);
 // Your code ……
 ```
 #### 6. Unit of work
