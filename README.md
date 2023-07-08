@@ -19,7 +19,7 @@ $ dotnet add package IceCoffee.SimpleCRUD.DependencyInjection # (optional) If yo
 ```
 
 ### Installing Database Providers
-#### Sql Server
+#### SQL Server
 ```sh
 $ dotnet add package Microsoft.Data.SqlClient
 ```
