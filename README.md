@@ -104,8 +104,9 @@ count = repo.Update(entity);
 // Insert
 count = repo.Insert(new Foo() { Id = 3, Name = "Name3", … … });
 
-// Bulk insert with useTransaction
-count = repo.Insert(new Foo[] { new Foo() { Id = 4, Name = "Name4" }, new Foo() { Id = 5, Name = "Name5" } }, true);
+// Bulk insert with transaction
+entities = new Foo[] { new Foo() { Id = 4, Name = "Name4" }, new Foo() { Id = 5, Name = "Name5" } };
+count = repo.Insert(entities, true);
 
 // Insert or ignore
 count = repo.InsertOrIgnore(entities);
