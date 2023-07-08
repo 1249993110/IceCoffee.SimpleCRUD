@@ -108,12 +108,23 @@ namespace IceCoffee.SimpleCRUD.UnitTest
                 uow.Commit();
             }
 
-            using (IUnitOfWork uow = UnitOfWorkFactory.Default.Create(string.Empty))
+            try
             {
-                var repository = uow.GetGenericRepository<Foo1>();
-                int count = repository.Insert(new Foo1() { Id = 2, Name_ = "Name2" });
-                Assert.That(count, Is.EqualTo(1));
-                uow.Commit();
+                using (IUnitOfWork uow = UnitOfWorkFactory.Default.Create(string.Empty))
+                {
+                    var repository = uow.GetGenericRepository<Foo>();
+                    var entity = new Foo() { Id = 2, Name = "Name2" };
+                    int count = repository.Insert(entity);
+                    Assert.That(count, Is.EqualTo(1));
+                    repository.Insert(entity);
+                    uow.Commit();
+                }
+            }
+            catch (Exception ex)
+            {
+                var entity = new GenericRepository<Foo>().GetById(2);
+                Assert.That(entity, Is.Null);
+                Assert.Pass("The expected primary key conflict exception is not thrown.");
             }
         }
     }

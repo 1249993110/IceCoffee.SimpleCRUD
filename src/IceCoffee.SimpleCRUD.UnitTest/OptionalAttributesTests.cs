@@ -1,10 +1,5 @@
 ﻿using IceCoffee.SimpleCRUD.SqlGenerators;
 using IceCoffee.SimpleCRUD.UnitTest.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace IceCoffee.SimpleCRUD.UnitTest
 {

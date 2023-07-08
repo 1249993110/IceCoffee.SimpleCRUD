@@ -10,11 +10,7 @@ namespace IceCoffee.SimpleCRUD.UnitTest
             if( _connection == null)
             {
                 string connectionString = "Data Source=InMemorySample;Mode=Memory;Cache=Shared";
-                DbConnectionFactory.Default.ConfigureOptions(new DbConnectionOptions()
-                {
-                    DbType = DbType.SQLite,
-                    ConnectionString = connectionString
-                });
+                DbConnectionFactory.Default.ConfigureOptions(connectionString, DbType.SQLite);
 
                 // Keep Open.
                 _connection = new SqliteConnection(connectionString);
