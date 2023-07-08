@@ -87,7 +87,7 @@ var repo = new Repository<Student>();
 var entity = repo.GetById(1);
 
 // Get list by where clause and orderBy clause
-var entities = repo.GetList("Name like @Name", "Name DESC", new { Name = "%EminemJK%" });
+var entities = repo.GetList("Name like @Name", "Name DESC", new { Name = "%xx%" });
 
 // Get paged list by limit and offset
 var page1 = repo.GetPagedList(1, 5);
