@@ -24,7 +24,7 @@ $ dotnet add package IceCoffee.SimpleCRUD.DependencyInjection # (optional) If yo
 $ dotnet add package Microsoft.Data.SqlClient
 ```
 
-### SQLite
+#### SQLite
 ```sh
 $ dotnet add package Microsoft.Data.SQLite
 ```
@@ -81,38 +81,38 @@ public class Foo
 
 #### 5. CRUD
 ``` csharp
-var repo = new GenericRepository<Foo>();
+var repository = new GenericRepository<Foo>();
 
 // Get by ID
-var entity = repo.GetById(1);
+var entity = repository.GetById(1);
 
 // Get list by where clause and orderBy clause
-var entities = repo.GetList("Name like @Name", "Name DESC", new { Name = "%xx%" });
+var entities = repository.GetList("Name like @Name", "Name DESC", new { Name = "%xx%" });
 
 // Get paged list by limit and offset
-var page1 = repo.GetPagedList(1, 5);
-var page2 = repo.GetPagedList(2, 5);
+var page1 = repository.GetPagedList(1, 5);
+var page2 = repository.GetPagedList(2, 5);
 
 // Delete
-int count = repo.Delete(new Foo(){ Id = 1 });
-count = repo.DeleteById(2);
-count = repo.DeleteByIds(2);
+int count = repository.Delete(new Foo(){ Id = 1 });
+count = repository.DeleteById(2);
+count = repository.DeleteByIds(2);
 
 // Update
-count = repo.Update(entity);
+count = repository.Update(entity);
 
 // Insert
-count = repo.Insert(new Foo() { Id = 3, Name = "Name3", … … });
+count = repository.Insert(new Foo() { Id = 3, Name = "Name3", … … });
 
 // Bulk insert with transaction
 entities = new Foo[] { new Foo() { Id = 4, Name = "Name4" }, new Foo() { Id = 5, Name = "Name5" } };
-count = repo.Insert(entities, true);
+count = repository.Insert(entities, true);
 
 // Insert or ignore
-count = repo.InsertOrIgnore(entities);
+count = repository.InsertOrIgnore(entities);
 
 // Insert or replace
-count = repo.InsertOrReplace(entities);
+count = repository.InsertOrReplace(entities);
 … …
 ```
 
@@ -181,6 +181,7 @@ services.AddRepositories((config) =>
 
 #### Use in API Controller
 ```csharp
+[Route("[controller]")]
 public class FooController : ControllerBase
 {
     private readonly IFooRepository _fooRepository;
@@ -189,7 +190,21 @@ public class FooController : ControllerBase
         _fooRepository = fooRepository;
     }
 
-    // Your code
+    [HttpGet("{id}")]
+    public ActionResult<Foo> Get([FromRoute] int id)
+    {
+        return _fooRepository.GetById(id);
+    }
+
+    [HttpPost]
+    public ActionResult<Foo> Get([FromBody] Foo model, [FromServices] IUnitOfWorkFactory unitOfWorkFactory)
+    {
+        using (IUnitOfWork uow = unitOfWorkFactory.Create(dbAliase))
+        {
+            var repository = uow.GetRepository<IFooRepository>();
+            // Your code
+        }
+    }
 }
 ```
 
