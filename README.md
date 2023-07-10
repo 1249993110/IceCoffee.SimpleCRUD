@@ -157,7 +157,7 @@ public interface IFooRepository : IRepository<Foo>
     // Your code
 }
 
-public class FooRepository : RepositoryBase<Foo>, IFooRepository where T : class
+public class FooRepository : RepositoryBase<Foo>, IFooRepository
 {
     public FooRepository(IDbConnectionFactory dbConnectionFactory, ISqlGeneratorFactory sqlGeneratorFactory)
         : base(dbConnectionFactory, sqlGeneratorFactory)
