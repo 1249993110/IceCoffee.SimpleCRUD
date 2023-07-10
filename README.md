@@ -113,7 +113,8 @@ count = repository.InsertOrIgnore(entities);
 
 // Insert or replace
 count = repository.InsertOrReplace(entities);
-… …
+
+// Your code 
 ```
 
 #### 5.1 Access multiple databases
@@ -125,7 +126,7 @@ DbConnectionFactory.Default.ConfigureOptions(dbAliase2, connectionString2, DbTyp
 
 var repository1 = new GenericRepository<Foo>(dbAliase1); 
 var repository2 = new GenericRepository<Foo>(dbAliase2);
-// Your code ……
+// Your code
 ```
 #### 6. Unit of work
 ``` csharp
