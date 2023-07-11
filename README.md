@@ -96,7 +96,7 @@ var page2 = repository.GetPagedList(2, 5);
 // Delete
 int count = repository.Delete(new Foo(){ Id = 1 });
 count = repository.DeleteById(2);
-count = repository.DeleteByIds(2);
+count = repository.DeleteByIds(new int[] { 1, 2 });
 
 // Update
 count = repository.Update(entity);
@@ -204,6 +204,7 @@ public class FooController : ControllerBase
         {
             var repository = uow.GetRepository<IFooRepository>();
             // Your code
+            uow.Commit();
         }
     }
 }
