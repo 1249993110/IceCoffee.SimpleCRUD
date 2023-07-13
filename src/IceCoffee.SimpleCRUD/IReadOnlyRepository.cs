@@ -42,7 +42,7 @@
         /// <param name="param">The parameters to pass, if any.</param>
         /// <param name="tableName"></param>
         /// <returns></returns>
-        (IEnumerable<TEntity> Items, int Total) GetPagedList(int pageNumber, int pageSize, string? whereClause = null, string? orderByClause = null, object? param = null, string? tableName = null);
+        (int Total, IEnumerable<TEntity> Items) GetPagedList(int pageNumber, int pageSize, string? whereClause = null, string? orderByClause = null, object? param = null, string? tableName = null);
 
         /// <summary>
         /// Get count of records based on the clause and param.
@@ -94,7 +94,7 @@
         /// <param name="param">The parameters to pass, if any.</param>
         /// <param name="tableName"></param>
         /// <returns></returns>
-        Task<(IEnumerable<TEntity> Items, int Total)> GetPagedListAsync(int pageNumber, int pageSize, string? whereClause = null, string? orderByClause = null, object? param = null, string? tableName = null);
+        Task<(int Total, IEnumerable<TEntity> Items)> GetPagedListAsync(int pageNumber, int pageSize, string? whereClause = null, string? orderByClause = null, object? param = null, string? tableName = null);
 
         /// <summary>
         /// Get count of records based on the clause and param.

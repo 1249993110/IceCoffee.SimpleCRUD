@@ -55,8 +55,7 @@ namespace IceCoffee.SimpleCRUD
 
         public TEntity? GetFirstOrDefault(string? whereClause = null, string? orderByClause = null, object? param = null, string? tableName = null)
         {
-            string sql = SqlGenerator.GetSelectStatement(whereClause, orderByClause, tableName);
-            return base.ExecuteQuery<TEntity>(sql, param).FirstOrDefault();
+            return this.GetList(whereClause, orderByClause, param, tableName).FirstOrDefault();
         }
 
         public IEnumerable<TEntity> GetList(string? whereClause = null, string? orderByClause = null, object? param = null, string? tableName = null)
@@ -65,14 +64,14 @@ namespace IceCoffee.SimpleCRUD
             return base.ExecuteQuery<TEntity>(sql, param);
         }
 
-        public (IEnumerable<TEntity> Items, int Total) GetPagedList(int pageNumber, int pageSize, string? whereClause = null, string? orderByClause = null, object? param = null, string? tableName = null)
+        public (int Total, IEnumerable<TEntity> Items) GetPagedList(int pageNumber, int pageSize, string? whereClause = null, string? orderByClause = null, object? param = null, string? tableName = null)
         {
             string sql = SqlGenerator.GetRecordCountStatement(whereClause, tableName) + ";" 
                 + SqlGenerator.GetSelectPagedStatement(pageNumber, pageSize, whereClause, orderByClause, tableName);
             using var multi = base.ExecuteQueryMultiple(sql, param);
             var total = multi.ReadSingle<int>();
             var items = total > 0 ? multi.Read<TEntity>() : Enumerable.Empty<TEntity>();
-            return (items, total);
+            return (total, items);
         }
 
         public int GetRecordCount(string? whereClause = null, object? param = null, string? tableName = null)
@@ -176,8 +175,7 @@ namespace IceCoffee.SimpleCRUD
 
         public async Task<TEntity?> GetFirstOrDefaultAsync(string? whereClause = null, string? orderByClause = null, object? param = null, string? tableName = null)
         {
-            string sql = SqlGenerator.GetSelectStatement(whereClause, orderByClause, tableName);
-            return (await base.ExecuteQueryAsync<TEntity>(sql, param)).FirstOrDefault();
+            return (await this.GetListAsync(whereClause, orderByClause, param, tableName)).FirstOrDefault();
         }
 
         public Task<IEnumerable<TEntity>> GetListAsync(string? whereClause = null, string? orderByClause = null, object? param = null, string? tableName = null)
@@ -186,14 +184,14 @@ namespace IceCoffee.SimpleCRUD
             return base.ExecuteQueryAsync<TEntity>(sql, param);
         }
 
-        public async Task<(IEnumerable<TEntity> Items, int Total)> GetPagedListAsync(int pageNumber, int pageSize, string? whereClause = null, string? orderByClause = null, object? param = null, string? tableName = null)
+        public async Task<(int Total, IEnumerable<TEntity> Items)> GetPagedListAsync(int pageNumber, int pageSize, string? whereClause = null, string? orderByClause = null, object? param = null, string? tableName = null)
         {
             string sql = SqlGenerator.GetRecordCountStatement(whereClause, tableName) + ";"
                 + SqlGenerator.GetSelectPagedStatement(pageNumber, pageSize, whereClause, orderByClause, tableName);
             using var multi = await base.ExecuteQueryMultipleAsync(sql, param);
             var total = await multi.ReadSingleAsync<int>();
             var items = total > 0 ? await multi.ReadAsync<TEntity>() : Enumerable.Empty<TEntity>();
-            return (items, total);
+            return (total, items);
         }
 
         public Task<int> GetRecordCountAsync(string? whereClause = null, object? param = null, string? tableName = null)

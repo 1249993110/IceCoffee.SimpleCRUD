@@ -16,7 +16,7 @@ namespace IceCoffee.SimpleCRUD
             Assembly assembly;
             try
             {
-                assembly = Assembly.Load(assemblyName);
+                assembly = Assembly.Load(new AssemblyName(assemblyName) );
                 return assembly;
             }
             catch { }
