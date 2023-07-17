@@ -10,7 +10,7 @@ namespace IceCoffee.SimpleCRUD
         private readonly IDbConnectionFactory _dbConnectionFactory;
         private readonly IRepositoryFactory? _repositoryFactory;
 
-        public UnitOfWorkFactory(IDbConnectionFactory dbConnectionFactory)
+        private UnitOfWorkFactory(IDbConnectionFactory dbConnectionFactory)
         {
             _dbConnectionFactory = dbConnectionFactory;
         }

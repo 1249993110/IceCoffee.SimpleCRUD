@@ -86,8 +86,8 @@ var repository = new GenericRepository<Foo>();
 // Get by ID
 var entity = repository.GetById(1);
 
-// Get list by where clause and orderBy clause
-var entities = repository.GetList("Name like @Name", "Name DESC", new { Name = "%xx%" });
+// Get all records
+var entities = repository.GetAll();
 
 // Get paged list by limit and offset
 var page1 = repository.GetPagedList(1, 5);
@@ -160,8 +160,7 @@ public interface IFooRepository : IRepository<Foo>
 
 public class FooRepository : RepositoryBase<Foo>, IFooRepository
 {
-    public FooRepository(IDbConnectionFactory dbConnectionFactory, ISqlGeneratorFactory sqlGeneratorFactory)
-        : base(dbConnectionFactory, sqlGeneratorFactory)
+    public FooRepository(IDbConnectionFactory dbConnectionFactory) : base(dbConnectionFactory)
     {
     }
 

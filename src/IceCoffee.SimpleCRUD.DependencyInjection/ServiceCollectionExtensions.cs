@@ -121,7 +121,6 @@ namespace IceCoffee.SimpleCRUD.DependencyInjection
         private static IServiceCollection InternalAddRepositories(this IServiceCollection services, IEnumerable<(Type ServiceType, Type ImplType)> repositoryTypes, ServiceLifetime serviceLifetime)
         {
             services.TryAddSingleton<IDbConnectionFactory, DbConnectionFactory>();
-            services.TryAddSingleton<ISqlGeneratorFactory, SqlGeneratorFactory>();
             services.TryAddSingleton<IRepositoryFactory, RepositoryFactory>();
             services.TryAddSingleton<IUnitOfWorkFactory, UnitOfWorkFactory>();
 

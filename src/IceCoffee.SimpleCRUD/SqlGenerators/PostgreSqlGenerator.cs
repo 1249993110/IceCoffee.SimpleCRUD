@@ -8,14 +8,14 @@
 
         public override string GetInsertOrIgnoreStatement(string? tableName = null)
         {
-            string sql = string.Format("INSERT INTO {0} {1} ON CONFLICT WHERE {2} DO NOTHING", tableName ?? TableName, InsertIntoClause, PrimaryKeyWhereClause);
+            string sql = string.Format("INSERT INTO {0} {1} ON CONFLICT WHERE {2} DO NOTHING", tableName ?? TableName, InsertIntoClause, GetPrimaryKeyWhereClause());
             return sql;
         }
 
         public override string GetInsertOrReplaceStatement(string? tableName = null)
         {
             string sql = string.Format("INSERT INTO {0} {1} ON CONFLICT WHERE {2} DO UPDATE {0} SET {3}",
-                tableName ?? TableName, InsertIntoClause, PrimaryKeyWhereClause, UpdateSetClause);
+                tableName ?? TableName, InsertIntoClause, GetPrimaryKeyWhereClause(), UpdateSetClause);
             return sql;
         }
 
@@ -23,7 +23,7 @@
         {
             string sql = string.Format(
                 "SELECT {0} FROM {1} {2} {3} LIMIT {4} OFFSET {5}",
-                SelectColumns,
+                SelectColumnClause,
                 tableName ?? TableName,
                 whereClause == null ? string.Empty : "WHERE " + whereClause,
                 orderByClause == null ? string.Empty : "ORDER BY " + orderByClause,

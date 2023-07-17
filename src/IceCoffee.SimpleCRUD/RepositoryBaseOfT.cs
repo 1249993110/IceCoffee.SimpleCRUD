@@ -2,135 +2,174 @@
 
 namespace IceCoffee.SimpleCRUD
 {
-    public abstract class RepositoryBase<TEntity> : RepositoryBase, IRepository<TEntity>
+    public abstract class ProtectedRepositoryBase<TEntity> : RepositoryBase
     {
         protected readonly ISqlGenerator SqlGenerator;
 
-        public RepositoryBase(IDbConnectionFactory dbConnectionFactory, ISqlGeneratorFactory sqlGeneratorFactory, string dbAliase) : base(dbConnectionFactory, dbAliase)
+        public ProtectedRepositoryBase(IDbConnectionFactory dbConnectionFactory, string dbAliase) : base(dbConnectionFactory, dbAliase)
         {
-            SqlGenerator = sqlGeneratorFactory.GetSqlGenerator(dbConnectionFactory.GetOptions(dbAliase).DbType, typeof(TEntity));
+            SqlGenerator = SqlGeneratorFactory.GetSqlGenerator(dbConnectionFactory.GetOptions(dbAliase).DbType, typeof(TEntity));
         }
 
-        public RepositoryBase(IDbConnectionFactory dbConnectionFactory, ISqlGeneratorFactory sqlGeneratorFactory)
-            : this(dbConnectionFactory, sqlGeneratorFactory, string.Empty)
-        {
-        }
-
-        #region Sync
-
-        public int Delete(string whereClause, object? param = null, bool useTransaction = false, string? tableName = null)
-        {
-            string sql = SqlGenerator.GetDeleteStatement(whereClause, tableName);
-            return base.Execute(sql, param, useTransaction);
-        }
-
-        public int Delete(TEntity entity, string? tableName = null)
-        {
-            string sql = SqlGenerator.GetDeleteStatement(SqlGenerator.PrimaryKeyWhereClause, tableName);
-            return base.Execute(sql, entity);
-        }
-
-        public int Delete(IEnumerable<TEntity> entities, bool useTransaction = false, string? tableName = null)
-        {
-            string sql = SqlGenerator.GetDeleteStatement(SqlGenerator.PrimaryKeyWhereClause, tableName);
-            return base.Execute(sql, entities, useTransaction);
-        }
-
-        public int DeleteById<TId>(TId id, string? tableName = null)
-        {
-            string sql = SqlGenerator.GetDeleteStatement(SqlGenerator.GetSingleKey() + "=@Id", tableName);
-            return base.Execute(sql, new { Id = id });
-        }
-
-        public int DeleteByIds<TId>(IEnumerable<TId> ids, bool useTransaction = false, string? tableName = null)
-        {
-            string sql = SqlGenerator.GetDeleteStatement(SqlGenerator.GetSingleKey() + " IN @Ids", tableName);
-            return base.Execute(sql, new { Ids = ids }, useTransaction);
-        }
-
-        public TEntity? GetById<TKey>(TKey id, string? tableName = null)
-        {
-            return this.GetFirstOrDefault(SqlGenerator.GetSingleKey() + "=@Id", null, new { Id = id }, tableName);
-        }
-
-        public TEntity? GetFirstOrDefault(string? whereClause = null, string? orderByClause = null, object? param = null, string? tableName = null)
+        #region Protected
+        protected virtual TEntity? GetFirstOrDefault(string? whereClause = null, string? orderByClause = null, object? param = null, string? tableName = null)
         {
             return this.GetList(whereClause, orderByClause, param, tableName).FirstOrDefault();
         }
-
-        public IEnumerable<TEntity> GetList(string? whereClause = null, string? orderByClause = null, object? param = null, string? tableName = null)
+        protected virtual async Task<TEntity?> GetFirstOrDefaultAsync(string? whereClause = null, string? orderByClause = null, object? param = null, string? tableName = null)
+        {
+            return (await this.GetListAsync(whereClause, orderByClause, param, tableName)).FirstOrDefault();
+        }
+        protected virtual IEnumerable<TEntity> GetList(string? whereClause = null, string? orderByClause = null, object? param = null, string? tableName = null)
         {
             string sql = SqlGenerator.GetSelectStatement(whereClause, orderByClause, tableName);
             return base.ExecuteQuery<TEntity>(sql, param);
         }
-
-        public (int Total, IEnumerable<TEntity> Items) GetPagedList(int pageNumber, int pageSize, string? whereClause = null, string? orderByClause = null, object? param = null, string? tableName = null)
+        protected virtual Task<IEnumerable<TEntity>> GetListAsync(string? whereClause = null, string? orderByClause = null, object? param = null, string? tableName = null)
         {
-            string sql = SqlGenerator.GetRecordCountStatement(whereClause, tableName) + ";" 
+            string sql = SqlGenerator.GetSelectStatement(whereClause, orderByClause, tableName);
+            return base.ExecuteQueryAsync<TEntity>(sql, param);
+        }
+        protected virtual (int Total, IEnumerable<TEntity> Items) GetPagedList(int pageNumber, int pageSize, string? whereClause = null, string? orderByClause = null, object? param = null, string? tableName = null)
+        {
+            string sql = SqlGenerator.GetRecordCountStatement(whereClause, tableName) + ";"
                 + SqlGenerator.GetSelectPagedStatement(pageNumber, pageSize, whereClause, orderByClause, tableName);
+
             using var multi = base.ExecuteQueryMultiple(sql, param);
             var total = multi.ReadSingle<int>();
             var items = total > 0 ? multi.Read<TEntity>() : Enumerable.Empty<TEntity>();
             return (total, items);
         }
+        protected virtual async Task<(int Total, IEnumerable<TEntity> Items)> GetPagedListAsync(int pageNumber, int pageSize, string? whereClause = null, string? orderByClause = null, object? param = null, string? tableName = null)
+        {
+            string sql = SqlGenerator.GetRecordCountStatement(whereClause, tableName) + ";"
+                + SqlGenerator.GetSelectPagedStatement(pageNumber, pageSize, whereClause, orderByClause, tableName);
 
-        public int GetRecordCount(string? whereClause = null, object? param = null, string? tableName = null)
+            using var multi = await base.ExecuteQueryMultipleAsync(sql, param);
+            var total = await multi.ReadSingleAsync<int>();
+            var items = total > 0 ? await multi.ReadAsync<TEntity>() : Enumerable.Empty<TEntity>();
+            return (total, items);
+        }
+        protected virtual int GetRecordCount(string? whereClause = null, object? param = null, string? tableName = null)
         {
             string sql = SqlGenerator.GetRecordCountStatement(whereClause, tableName);
             return base.ExecuteScalar<int>(sql, param);
         }
-
-        public int Insert(TEntity entity, string? tableName = null)
+        protected virtual Task<int> GetRecordCountAsync(string? whereClause = null, object? param = null, string? tableName = null)
         {
-            string sql = SqlGenerator.GetInsertStatement(tableName);
-            return base.Execute(sql, entity);
+            string sql = SqlGenerator.GetRecordCountStatement(whereClause, tableName);
+            return base.ExecuteScalarAsync<int>(sql, param);
         }
-
-        public int Insert(IEnumerable<TEntity> entities, bool useTransaction = false, string? tableName = null)
+        protected virtual int Delete(string whereClause, object? param = null, bool useTransaction = false, string? tableName = null)
         {
-            string sql = SqlGenerator.GetInsertStatement(tableName);
-            return base.Execute(sql, entities, useTransaction);
-        }
-
-        public int InsertOrIgnore(TEntity entity, string? tableName = null)
-        {
-            string sql = SqlGenerator.GetInsertOrIgnoreStatement(tableName);
-            return base.Execute(sql, entity);
-        }
-
-        public int InsertOrIgnore(IEnumerable<TEntity> entities, bool useTransaction = false, string? tableName = null)
-        {
-            string sql = SqlGenerator.GetInsertOrIgnoreStatement(tableName);
-            return base.Execute(sql, entities, useTransaction);
-        }
-
-        public int InsertOrReplace(TEntity entity, string? tableName = null)
-        {
-            string sql = SqlGenerator.GetInsertOrReplaceStatement(tableName);
-            return base.Execute(sql, entity);
-        }
-
-        public int InsertOrReplace(IEnumerable<TEntity> entities, bool useTransaction = false, string? tableName = null)
-        {
-            string sql = SqlGenerator.GetInsertOrReplaceStatement(tableName);
-            return base.Execute(sql, entities, useTransaction);
-        }
-
-        public int Update(string setClause, string whereClause, object param, bool useTransaction = false, string? tableName = null)
-        {
-            string sql = SqlGenerator.GetUpdateStatement(setClause, whereClause, tableName);
+            string sql = SqlGenerator.GetDeleteStatement(whereClause, tableName);
             return base.Execute(sql, param, useTransaction);
         }
-
-        public int Update(TEntity entity, string? tableName = null)
+        protected virtual Task<int> DeleteAsync(string whereClause, object? param = null, bool useTransaction = false, string? tableName = null)
         {
-            string sql = SqlGenerator.GetUpdateStatement(tableName);
+            string sql = SqlGenerator.GetDeleteStatement(whereClause, tableName);
+            return base.ExecuteAsync(sql, param, useTransaction);
+        }
+        #endregion
+
+    }
+
+    public abstract class RepositoryBase<TEntity> : ProtectedRepositoryBase<TEntity>, IRepository<TEntity>
+    {
+        public RepositoryBase(IDbConnectionFactory dbConnectionFactory, string dbAliase) : base(dbConnectionFactory, dbAliase)
+        {
+        }
+
+        #region Sync
+        public virtual TEntity? GetById<TKey>(TKey id)
+        {
+            return base.GetFirstOrDefault(SqlGenerator.GetSingleKey() + "=@Id", null, new { Id = id });
+        }
+
+        public virtual IEnumerable<TEntity> GetAll()
+        {
+            return base.GetList();
+        }
+
+        public virtual (int Total, IEnumerable<TEntity> Items) GetPagedList(int pageNumber, int pageSize)
+        {
+            return base.GetPagedList(pageNumber, pageSize);
+        }
+
+        public virtual int GetRecordCount()
+        {
+            return base.GetRecordCount();
+        }
+
+        public virtual int Delete(TEntity entity)
+        {
+            string sql = SqlGenerator.GetDeleteStatement(SqlGenerator.GetPrimaryKeyWhereClause());
             return base.Execute(sql, entity);
         }
 
-        public int Update(IEnumerable<TEntity> entities, bool useTransaction = false, string? tableName = null)
+        public virtual int Delete(IEnumerable<TEntity> entities, bool useTransaction = false)
         {
-            string sql = SqlGenerator.GetUpdateStatement(tableName);
+            string sql = SqlGenerator.GetDeleteStatement(SqlGenerator.GetPrimaryKeyWhereClause());
+            return base.Execute(sql, entities, useTransaction);
+        }
+
+        public virtual int DeleteById<TId>(TId id)
+        {
+            string sql = SqlGenerator.GetDeleteStatement(SqlGenerator.GetSingleKey() + "=@Id");
+            return base.Execute(sql, new { Id = id });
+        }
+
+        public virtual int DeleteByIds<TId>(IEnumerable<TId> ids, bool useTransaction = false)
+        {
+            string sql = SqlGenerator.GetDeleteStatement(SqlGenerator.GetSingleKey() + " IN @Ids");
+            return base.Execute(sql, new { Ids = ids }, useTransaction);
+        }
+
+        public virtual int Insert(TEntity entity)
+        {
+            string sql = SqlGenerator.GetInsertStatement();
+            return base.Execute(sql, entity);
+        }
+
+        public virtual int Insert(IEnumerable<TEntity> entities, bool useTransaction = false)
+        {
+            string sql = SqlGenerator.GetInsertStatement();
+            return base.Execute(sql, entities, useTransaction);
+        }
+
+        public virtual int InsertOrIgnore(TEntity entity)
+        {
+            string sql = SqlGenerator.GetInsertOrIgnoreStatement();
+            return base.Execute(sql, entity);
+        }
+
+        public virtual int InsertOrIgnore(IEnumerable<TEntity> entities, bool useTransaction = false)
+        {
+            string sql = SqlGenerator.GetInsertOrIgnoreStatement();
+            return base.Execute(sql, entities, useTransaction);
+        }
+
+        public virtual int InsertOrReplace(TEntity entity)
+        {
+            string sql = SqlGenerator.GetInsertOrReplaceStatement();
+            return base.Execute(sql, entity);
+        }
+
+        public virtual int InsertOrReplace(IEnumerable<TEntity> entities, bool useTransaction = false)
+        {
+            string sql = SqlGenerator.GetInsertOrReplaceStatement();
+            return base.Execute(sql, entities, useTransaction);
+        }
+
+        public virtual int Update(TEntity entity)
+        {
+            string sql = SqlGenerator.GetUpdateStatement();
+            return base.Execute(sql, entity);
+        }
+
+        public virtual int Update(IEnumerable<TEntity> entities, bool useTransaction = false)
+        {
+            string sql = SqlGenerator.GetUpdateStatement();
             return base.Execute(sql, entities, useTransaction);
         }
 
@@ -138,122 +177,97 @@ namespace IceCoffee.SimpleCRUD
 
         #region Async
 
-        public Task<int> DeleteAsync(string whereClause, object? param = null, bool useTransaction = false, string? tableName = null)
+        public virtual Task<int> DeleteAsync(TEntity entity)
         {
-            string sql = SqlGenerator.GetDeleteStatement(whereClause, tableName);
-            return base.ExecuteAsync(sql, param, useTransaction);
-        }
-
-        public Task<int> DeleteAsync(TEntity entity, string? tableName = null)
-        {
-            string sql = SqlGenerator.GetDeleteStatement(SqlGenerator.PrimaryKeyWhereClause, tableName);
+            string sql = SqlGenerator.GetDeleteStatement(SqlGenerator.GetPrimaryKeyWhereClause());
             return base.ExecuteAsync(sql, entity);
         }
 
-        public Task<int> DeleteAsync(IEnumerable<TEntity> entities, bool useTransaction = false, string? tableName = null)
+        public virtual Task<int> DeleteAsync(IEnumerable<TEntity> entities, bool useTransaction = false)
         {
-            string sql = SqlGenerator.GetDeleteStatement(SqlGenerator.PrimaryKeyWhereClause, tableName);
+            string sql = SqlGenerator.GetDeleteStatement(SqlGenerator.GetPrimaryKeyWhereClause());
             return base.ExecuteAsync(sql, entities, useTransaction);
         }
 
-        public Task<int> DeleteByIdAsync<TId>(TId id, string? tableName = null)
+        public virtual Task<int> DeleteByIdAsync<TId>(TId id)
         {
-            string sql = SqlGenerator.GetDeleteStatement(SqlGenerator.GetSingleKey() + "=@Id", tableName);
+            string sql = SqlGenerator.GetDeleteStatement(SqlGenerator.GetSingleKey() + "=@Id");
             return base.ExecuteAsync(sql, new { Id = id });
         }
 
-        public Task<int> DeleteByIdsAsync<TId>(IEnumerable<TId> ids, bool useTransaction = false, string? tableName = null)
+        public virtual Task<int> DeleteByIdsAsync<TId>(IEnumerable<TId> ids, bool useTransaction = false)
         {
-            string sql = SqlGenerator.GetDeleteStatement(SqlGenerator.GetSingleKey() + " IN @Ids", tableName);
+            string sql = SqlGenerator.GetDeleteStatement(SqlGenerator.GetSingleKey() + " IN @Ids");
             return base.ExecuteAsync(sql, new { Ids = ids }, useTransaction);
         }
 
-        public Task<TEntity?> GetByIdAsync<TKey>(TKey id, string? tableName = null)
+        public virtual Task<TEntity?> GetByIdAsync<TKey>(TKey id)
         {
-            return this.GetFirstOrDefaultAsync(SqlGenerator.GetSingleKey() + "=@Id", null, new { Id = id }, tableName);
+            return base.GetFirstOrDefaultAsync(SqlGenerator.GetSingleKey() + "=@Id", null, new { Id = id });
         }
 
-        public async Task<TEntity?> GetFirstOrDefaultAsync(string? whereClause = null, string? orderByClause = null, object? param = null, string? tableName = null)
+        public Task<IEnumerable<TEntity>> GetAllAsync()
         {
-            return (await this.GetListAsync(whereClause, orderByClause, param, tableName)).FirstOrDefault();
+            return base.GetListAsync();
         }
 
-        public Task<IEnumerable<TEntity>> GetListAsync(string? whereClause = null, string? orderByClause = null, object? param = null, string? tableName = null)
+        public virtual Task<(int Total, IEnumerable<TEntity> Items)> GetPagedListAsync(int pageNumber, int pageSize)
         {
-            string sql = SqlGenerator.GetSelectStatement(whereClause, orderByClause, tableName);
-            return base.ExecuteQueryAsync<TEntity>(sql, param);
+            return base.GetPagedListAsync(pageNumber, pageSize);
         }
 
-        public async Task<(int Total, IEnumerable<TEntity> Items)> GetPagedListAsync(int pageNumber, int pageSize, string? whereClause = null, string? orderByClause = null, object? param = null, string? tableName = null)
+        public virtual Task<int> GetRecordCountAsync()
         {
-            string sql = SqlGenerator.GetRecordCountStatement(whereClause, tableName) + ";"
-                + SqlGenerator.GetSelectPagedStatement(pageNumber, pageSize, whereClause, orderByClause, tableName);
-            using var multi = await base.ExecuteQueryMultipleAsync(sql, param);
-            var total = await multi.ReadSingleAsync<int>();
-            var items = total > 0 ? await multi.ReadAsync<TEntity>() : Enumerable.Empty<TEntity>();
-            return (total, items);
+            return base.GetRecordCountAsync();
         }
 
-        public Task<int> GetRecordCountAsync(string? whereClause = null, object? param = null, string? tableName = null)
+        public virtual Task<int> InsertAsync(TEntity entity)
         {
-            string sql = SqlGenerator.GetRecordCountStatement(whereClause, tableName);
-            return base.ExecuteScalarAsync<int>(sql, param);
-        }
-
-        public Task<int> InsertAsync(TEntity entity, string? tableName = null)
-        {
-            string sql = SqlGenerator.GetInsertStatement(tableName);
+            string sql = SqlGenerator.GetInsertStatement();
             return base.ExecuteAsync(sql, entity);
         }
 
-        public Task<int> InsertAsync(IEnumerable<TEntity> entities, bool useTransaction = false, string? tableName = null)
+        public virtual Task<int> InsertAsync(IEnumerable<TEntity> entities, bool useTransaction = false)
         {
-            string sql = SqlGenerator.GetInsertStatement(tableName);
+            string sql = SqlGenerator.GetInsertStatement();
             return base.ExecuteAsync(sql, entities, useTransaction);
         }
 
-        public Task<int> InsertOrIgnoreAsync(TEntity entity, string? tableName = null)
+        public virtual Task<int> InsertOrIgnoreAsync(TEntity entity)
         {
-            string sql = SqlGenerator.GetInsertOrIgnoreStatement(tableName);
+            string sql = SqlGenerator.GetInsertOrIgnoreStatement();
             return base.ExecuteAsync(sql, entity);
         }
 
-        public Task<int> InsertOrIgnoreAsync(IEnumerable<TEntity> entities, bool useTransaction = false, string? tableName = null)
+        public virtual Task<int> InsertOrIgnoreAsync(IEnumerable<TEntity> entities, bool useTransaction = false)
         {
-            string sql = SqlGenerator.GetInsertOrIgnoreStatement(tableName);
+            string sql = SqlGenerator.GetInsertOrIgnoreStatement();
             return base.ExecuteAsync(sql, entities, useTransaction);
         }
 
-        public Task<int> InsertOrReplaceAsync(TEntity entity, string? tableName = null)
+        public virtual Task<int> InsertOrReplaceAsync(TEntity entity)
         {
-            string sql = SqlGenerator.GetInsertOrReplaceStatement(tableName);
+            string sql = SqlGenerator.GetInsertOrReplaceStatement();
             return base.ExecuteAsync(sql, entity);
         }
 
-        public Task<int> InsertOrReplaceAsync(IEnumerable<TEntity> entities, bool useTransaction = false, string? tableName = null)
+        public virtual Task<int> InsertOrReplaceAsync(IEnumerable<TEntity> entities, bool useTransaction = false)
         {
-            string sql = SqlGenerator.GetInsertOrReplaceStatement(tableName);
+            string sql = SqlGenerator.GetInsertOrReplaceStatement();
             return base.ExecuteAsync(sql, entities, useTransaction);
         }
 
-        public Task<int> UpdateAsync(string setClause, string whereClause, object param, bool useTransaction = false, string? tableName = null)
+        public virtual Task<int> UpdateAsync(TEntity entity)
         {
-            string sql = SqlGenerator.GetUpdateStatement(setClause, whereClause, tableName);
-            return base.ExecuteAsync(sql, param, useTransaction);
-        }
-
-        public Task<int> UpdateAsync(TEntity entity, string? tableName = null)
-        {
-            string sql = SqlGenerator.GetUpdateStatement(tableName);
+            string sql = SqlGenerator.GetUpdateStatement();
             return base.ExecuteAsync(sql, entity);
         }
 
-        public Task<int> UpdateAsync(IEnumerable<TEntity> entities, bool useTransaction = false, string? tableName = null)
+        public virtual Task<int> UpdateAsync(IEnumerable<TEntity> entities, bool useTransaction = false)
         {
-            string sql = SqlGenerator.GetUpdateStatement(tableName);
+            string sql = SqlGenerator.GetUpdateStatement();
             return base.ExecuteAsync(sql, entities, useTransaction);
         }
-
         #endregion
     }
 }

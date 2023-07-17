@@ -22,7 +22,7 @@
         {
             string sql = string.Format(
                 "SELECT {0} FROM {1} {2} {3} LIMIT {4} OFFSET {5}",
-                SelectColumns,
+                SelectColumnClause,
                 tableName ?? TableName,
                 whereClause == null ? string.Empty : "WHERE " + whereClause,
                 orderByClause == null ? string.Empty : "ORDER BY " + orderByClause,

@@ -6,24 +6,14 @@ namespace IceCoffee.SimpleCRUD.SqlGenerators
 {
     public abstract class SqlGeneratorBase : ISqlGenerator
     {
-        public virtual string TableName { get; protected set; }
-        public virtual bool IsView { get; protected set; }
-        private string[]? _primaryKeys;
-        public virtual string[] PrimaryKeys 
-        { 
-            get => _primaryKeys ?? throw new Exception("No primary key is identified."); 
-            protected set { _primaryKeys = value; }
-        }
-        private string? _primaryKeyWhereClause;
-        public virtual string PrimaryKeyWhereClause
-        {
-            get => _primaryKeyWhereClause ?? throw new Exception("No primary key is identified.");
-            protected set { _primaryKeyWhereClause = value; }
-        }
-
-        public virtual string SelectColumns { get; private set; }
+        public virtual string TableName { get; private set; }
+        public virtual bool IsView { get; private set; }
+        public virtual string SelectColumnClause { get; private set; }
         public virtual string InsertIntoClause { get; private set; }
         public virtual string UpdateSetClause { get; private set; }
+
+        private readonly string[]? _primaryKeys;
+        private readonly string? _primaryKeyWhereClause;
 
         public SqlGeneratorBase(Type entityType)
         {
@@ -59,7 +49,7 @@ namespace IceCoffee.SimpleCRUD.SqlGenerators
                 }
             }
 
-            SelectColumns = stringBuilder1.Remove(stringBuilder1.Length - 1, 1).ToString();
+            SelectColumnClause = stringBuilder1.Remove(stringBuilder1.Length - 1, 1).ToString();
             if (IsView == false)
             {
                 InsertIntoClause = string.Format("({0}) VALUES({1})",
@@ -82,12 +72,20 @@ namespace IceCoffee.SimpleCRUD.SqlGenerators
 
                     stringBuilder5.Remove(stringBuilder5.Length - 5, 5);
 
-                    PrimaryKeys = keyNames.ToArray();
-                    PrimaryKeyWhereClause = stringBuilder5.ToString();
+                    _primaryKeys = keyNames.ToArray();
+                    _primaryKeyWhereClause = stringBuilder5.ToString();
                 }
             }
         }
 
+        public virtual string[] GetPrimaryKeys()
+        {
+            return _primaryKeys ?? throw new Exception("No primary key is identified.");
+        }
+        public virtual string GetPrimaryKeyWhereClause()
+        {
+            return _primaryKeyWhereClause ?? throw new Exception("No primary key is identified.");
+        }
 
         public virtual string GetInsertStatement(string? tableName = null)
         {
@@ -102,20 +100,17 @@ namespace IceCoffee.SimpleCRUD.SqlGenerators
         public virtual string GetSelectStatement(string? whereClause = null, string? orderByClause = null, string? tableName = null)
         {
             string sql = string.Format("SELECT {0} FROM {1} {2} {3}", 
-                SelectColumns, 
+                SelectColumnClause, 
                 tableName ?? TableName,
                 whereClause == null ? string.Empty : "WHERE " + whereClause,
                 orderByClause == null ? string.Empty : "ORDER BY " + orderByClause);
             return sql;
         }
-        public virtual string GetUpdateStatement(string setClause, string whereClause, string? tableName = null)
-        {
-            string sql = string.Format("UPDATE {0} SET {1} WHERE {2}", tableName ?? TableName, setClause, whereClause);
-            return sql;
-        }
+
         public string GetUpdateStatement(string? tableName = null)
         {
-            return this.GetUpdateStatement(UpdateSetClause, PrimaryKeyWhereClause, tableName);
+            string sql = string.Format("UPDATE {0} SET {1} WHERE {2}", tableName ?? TableName, UpdateSetClause, GetPrimaryKeyWhereClause());
+            return sql;
         }
 
         public abstract string GetInsertOrIgnoreStatement(string? tableName = null);
@@ -127,19 +122,20 @@ namespace IceCoffee.SimpleCRUD.SqlGenerators
             string sql = string.Format("LIKE CONCAT('%',@{0},'%')", keywordParamName);
             return sql;
         }
-        public virtual string GetRecordCountStatement(string? whereClause, string? tableName = null)
+        public virtual string GetRecordCountStatement(string? whereClause = null, string? tableName = null)
         {
             string sql = string.Format("SELECT COUNT(*) FROM {0} {1}", tableName ?? TableName, whereClause == null ? string.Empty : "WHERE " + whereClause);
             return sql;
         }
         public virtual string GetSingleKey()
         {
-            if (PrimaryKeys.Length > 1)
+            var primaryKeysp = GetPrimaryKeys();
+            if (primaryKeysp.Length > 1)
             {
                 throw new InvalidOperationException("Multiple primary keys are defined, only supports an entity with a single [PrimaryKey] attribute.");
             }
 
-            return PrimaryKeys[0];
+            return primaryKeysp[0];
         }
     }
 }

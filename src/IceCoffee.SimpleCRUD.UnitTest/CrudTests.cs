@@ -1,5 +1,6 @@
 using IceCoffee.SimpleCRUD.UnitTest.Models;
 using System.Data.Common;
+using System.Reflection;
 
 namespace IceCoffee.SimpleCRUD.UnitTest
 {
@@ -12,20 +13,23 @@ namespace IceCoffee.SimpleCRUD.UnitTest
         public void Setup()
         {
             InMemorySample.Init();
-            _repository = new GenericRepository<Foo>();
-            _repository.Execute(@"CREATE TABLE IF NOT EXISTS Foo(
+
+            string sql = @"CREATE TABLE IF NOT EXISTS Foo(
                                     Id INTEGER NOT NULL,
 	                                Name TEXT NOT NULL,
 	                                Age INTEGER,
 	                                PRIMARY KEY(Id)
-                                );");
+                                );";
+
+            _repository = new GenericRepository<Foo>();
+            _repository.GetType().GetMethod("Execute", BindingFlags.NonPublic | BindingFlags.Instance)?.Invoke(_repository, new object?[] { sql, null, false });
         }
 
         [Test]
         [Order(0)]
         public void CrudTest()
         {
-            _repository.Delete("1=1");
+            _repository.Delete(_repository.GetAll());
 
             var entity = new Foo() { Id = 1, Name = "Name1" };
             int count = _repository.Insert(entity);
@@ -61,13 +65,9 @@ namespace IceCoffee.SimpleCRUD.UnitTest
             entity = _repository.GetById(5);
             Assert.That(entity, Is.Null);
 
-            var pagedResult = _repository.GetPagedList(2, 2, orderByClause: "Id DESC");
-            Assert.Multiple(() =>
-            {
-                Assert.That(pagedResult.Total, Is.EqualTo(4));
-                Assert.That(pagedResult.Items.Count(), Is.EqualTo(2));
-                Assert.That(pagedResult.Items.Last().Id, Is.EqualTo(1));
-            });
+            var pagedResult = _repository.GetPagedList(2, 2);
+            Assert.That(pagedResult.Total, Is.EqualTo(4));
+            Assert.That(pagedResult.Items.Count(), Is.EqualTo(2));
 
             count = _repository.Delete(new Foo() { Id = 4 });
             Assert.That(count, Is.EqualTo(1));
@@ -80,8 +80,7 @@ namespace IceCoffee.SimpleCRUD.UnitTest
             _repository.InsertOrIgnore(new Foo() { Id = 2, Name = "Name2" });
             _repository.InsertOrIgnore(new Foo[] { new Foo() { Id = 2, Name = "Name2" }, new Foo() { Id = 3, Name = "Name3" } });
 
-            Assert.That(_repository.GetFirstOrDefault(orderByClause: "Id DESC")?.Id, Is.EqualTo(3));
-            Assert.That(_repository.GetList().Count(), Is.EqualTo(3));
+            Assert.That(_repository.GetRecordCount(), Is.EqualTo(3));
 
             _repository.Update(new Foo() { Id = 1, Name = "Name1", Age = 18 });
             Assert.That(_repository.GetById(1)?.Age, Is.EqualTo(18));
@@ -98,7 +97,7 @@ namespace IceCoffee.SimpleCRUD.UnitTest
         [Order(1)]
         public void UnitOfWorkTest()
         {
-            _repository.Delete("1=1");
+            _repository.Delete(_repository.GetAll());
 
             using (IUnitOfWork uow = UnitOfWorkFactory.Default.Create(string.Empty))
             {

@@ -10,13 +10,13 @@ namespace IceCoffee.SimpleCRUD.UnitTest
         [Order(0)]
         public void InsertTest()
         {
-            var sqlGenerator = SqlGeneratorFactory.Default.GetSqlGenerator(DbType.SQLite, typeof(Foo1));
+            var sqlGenerator = SqlGeneratorFactory.GetSqlGenerator(DbType.SQLite, typeof(Foo1));
 
             Assert.That(sqlGenerator.TableName, Is.EqualTo("Foo"));
             Assert.That(sqlGenerator.IsView, Is.EqualTo(false));
-            Assert.That(sqlGenerator.PrimaryKeys, Does.Contain("Id"));
-            Assert.That(sqlGenerator.PrimaryKeys, Does.Contain("Name"));
-            Assert.That(sqlGenerator.PrimaryKeyWhereClause, Is.EqualTo("Id=@Id AND Name=@Name_"));
+            Assert.That(sqlGenerator.GetPrimaryKeys(), Does.Contain("Id"));
+            Assert.That(sqlGenerator.GetPrimaryKeys(), Does.Contain("Name"));
+            Assert.That(sqlGenerator.GetPrimaryKeyWhereClause(), Is.EqualTo("Id=@Id AND Name=@Name_"));
         }
     }
 }

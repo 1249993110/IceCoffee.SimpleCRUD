@@ -1,6 +1,5 @@
 ﻿using Dapper;
 using System.Data;
-using System.Diagnostics;
 using static Dapper.SqlMapper;
 
 namespace IceCoffee.SimpleCRUD
@@ -24,13 +23,13 @@ namespace IceCoffee.SimpleCRUD
 
         private (IDbConnection conn, IDbTransaction? tran) GetDbContext(bool useTransaction = false)
         {
-            if(_unitOfWork != null)
+            if (_unitOfWork != null)
             {
                 return (_unitOfWork.DbConnection, _unitOfWork.DbTransaction);
             }
 
             var connection = _dbConnectionFactory.CreateConnection(_dbAliase);
-            if(useTransaction)
+            if (useTransaction)
             {
                 connection.Open();
                 return (connection, connection.BeginTransaction());
@@ -39,7 +38,7 @@ namespace IceCoffee.SimpleCRUD
             return (connection, null);
         }
 
-        public virtual int Execute(string sql, object? param = null, bool useTransaction = false)
+        protected virtual int Execute(string sql, object? param = null, bool useTransaction = false)
         {
             var (conn, tran) = GetDbContext(useTransaction);
             try
@@ -63,13 +62,13 @@ namespace IceCoffee.SimpleCRUD
             }
             finally
             {
-                if(_unitOfWork == null)
+                if (_unitOfWork == null)
                 {
                     tran?.Dispose();
                 }
             }
         }
-        public virtual async Task<int> ExecuteAsync(string sql, object? param = null, bool useTransaction = false)
+        protected virtual async Task<int> ExecuteAsync(string sql, object? param = null, bool useTransaction = false)
         {
             var (conn, tran) = GetDbContext(useTransaction);
             try
@@ -100,45 +99,45 @@ namespace IceCoffee.SimpleCRUD
             }
         }
 
-        public virtual IEnumerable<TEntity> ExecuteQuery<TEntity>(string sql, object? param = null)
+        protected virtual IEnumerable<TEntity> ExecuteQuery<TEntity>(string sql, object? param = null)
         {
             var (conn, tran) = GetDbContext();
             return conn.Query<TEntity>(sql, param, tran);
         }
-        public virtual Task<IEnumerable<TEntity>> ExecuteQueryAsync<TEntity>(string sql, object? param = null)
+        protected virtual Task<IEnumerable<TEntity>> ExecuteQueryAsync<TEntity>(string sql, object? param = null)
         {
             var (conn, tran) = GetDbContext();
             return conn.QueryAsync<TEntity>(sql, param, tran);
         }
 
-        public virtual GridReader ExecuteQueryMultiple(string sql, object? param = null)
+        protected virtual GridReader ExecuteQueryMultiple(string sql, object? param = null)
         {
             var (conn, tran) = GetDbContext();
             return conn.QueryMultiple(sql, param, tran);
         }
-        public virtual Task<GridReader> ExecuteQueryMultipleAsync(string sql, object? param = null)
+        protected virtual Task<GridReader> ExecuteQueryMultipleAsync(string sql, object? param = null)
         {
             var (conn, tran) = GetDbContext();
             return conn.QueryMultipleAsync(sql, param, tran);
         }
 
-        public virtual TReturn ExecuteScalar<TReturn>(string sql, object? param = null)
+        protected virtual TReturn ExecuteScalar<TReturn>(string sql, object? param = null)
         {
             var (conn, tran) = GetDbContext();
             return conn.ExecuteScalar<TReturn>(sql, param, tran);
         }
-        public virtual Task<TReturn> ExecuteScalarAsync<TReturn>(string sql, object? param = null)
+        protected virtual Task<TReturn> ExecuteScalarAsync<TReturn>(string sql, object? param = null)
         {
             var (conn, tran) = GetDbContext();
             return conn.ExecuteScalarAsync<TReturn>(sql, param, tran);
         }
 
-        public virtual IEnumerable<TEntity> ExecuteProcedure<TEntity>(string procName, DynamicParameters parameters)
+        protected virtual IEnumerable<TEntity> ExecuteProcedure<TEntity>(string procName, DynamicParameters parameters)
         {
             var (conn, tran) = GetDbContext();
             return conn.Query<TEntity>(new CommandDefinition(procName, parameters, tran, commandType: CommandType.StoredProcedure));
         }
-        public virtual Task<IEnumerable<TEntity>> ExecuteProcedureAsync<TEntity>(string procName, DynamicParameters parameters)
+        protected virtual Task<IEnumerable<TEntity>> ExecuteProcedureAsync<TEntity>(string procName, DynamicParameters parameters)
         {
             var (conn, tran) = GetDbContext();
             return conn.QueryAsync<TEntity>(new CommandDefinition(procName, parameters, tran, commandType: CommandType.StoredProcedure));

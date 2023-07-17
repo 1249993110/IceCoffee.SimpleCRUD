@@ -2,17 +2,14 @@
 
 namespace IceCoffee.SimpleCRUD.SqlGenerators
 {
-    public class SqlGeneratorFactory : ISqlGeneratorFactory
+    public static class SqlGeneratorFactory
     {
-        private static readonly Lazy<SqlGeneratorFactory> _default = new(true);
-        public static SqlGeneratorFactory Default => _default.Value;
+        private static ConcurrentDictionary<Type, ISqlGenerator> _sqlServerSqlGenerators;
+        private static ConcurrentDictionary<Type, ISqlGenerator> _sqlLiteSqlGenerators;
+        private static ConcurrentDictionary<Type, ISqlGenerator> _postgreSqlGenerators;
+        private static ConcurrentDictionary<Type, ISqlGenerator> _mySqlGenerators;
 
-        private ConcurrentDictionary<Type, ISqlGenerator> _sqlServerSqlGenerators;
-        private ConcurrentDictionary<Type, ISqlGenerator> _sqlLiteSqlGenerators;
-        private ConcurrentDictionary<Type, ISqlGenerator> _postgreSqlGenerators;
-        private ConcurrentDictionary<Type, ISqlGenerator> _mySqlGenerators;
-
-        public ISqlGenerator GetSqlGenerator(DbType dbType, Type entityType)
+        public static ISqlGenerator GetSqlGenerator(DbType dbType, Type entityType)
         {
             switch (dbType)
             {
