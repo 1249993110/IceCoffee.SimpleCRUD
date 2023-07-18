@@ -122,6 +122,7 @@ namespace IceCoffee.SimpleCRUD.SqlGenerators
             string sql = string.Format("LIKE CONCAT('%',@{0},'%')", keywordParamName);
             return sql;
         }
+
         public virtual string GetRecordCountStatement(string? whereClause = null, string? tableName = null)
         {
             string sql = string.Format("SELECT COUNT(*) FROM {0} {1}", tableName ?? TableName, whereClause == null ? string.Empty : "WHERE " + whereClause);
@@ -136,6 +137,6 @@ namespace IceCoffee.SimpleCRUD.SqlGenerators
             }
 
             return primaryKeysp[0];
-        }
+        }        
     }
 }

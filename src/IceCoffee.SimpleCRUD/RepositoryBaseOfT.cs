@@ -1,4 +1,5 @@
-﻿using IceCoffee.SimpleCRUD.SqlGenerators;
+﻿using IceCoffee.SimpleCRUD.Dtos;
+using IceCoffee.SimpleCRUD.SqlGenerators;
 
 namespace IceCoffee.SimpleCRUD
 {
@@ -30,7 +31,7 @@ namespace IceCoffee.SimpleCRUD
             string sql = SqlGenerator.GetSelectStatement(whereClause, orderByClause, tableName);
             return base.ExecuteQueryAsync<TEntity>(sql, param);
         }
-        protected virtual (int Total, IEnumerable<TEntity> Items) GetPagedList(int pageNumber, int pageSize, string? whereClause = null, string? orderByClause = null, object? param = null, string? tableName = null)
+        protected virtual PaginationDto<TEntity> GetPagedList(int pageNumber, int pageSize, string? whereClause = null, string? orderByClause = null, object? param = null, string? tableName = null)
         {
             string sql = SqlGenerator.GetRecordCountStatement(whereClause, tableName) + ";"
                 + SqlGenerator.GetSelectPagedStatement(pageNumber, pageSize, whereClause, orderByClause, tableName);
@@ -38,9 +39,9 @@ namespace IceCoffee.SimpleCRUD
             using var multi = base.ExecuteQueryMultiple(sql, param);
             var total = multi.ReadSingle<int>();
             var items = total > 0 ? multi.Read<TEntity>() : Enumerable.Empty<TEntity>();
-            return (total, items);
+            return new PaginationDto<TEntity>() { Total = total, Items = items };
         }
-        protected virtual async Task<(int Total, IEnumerable<TEntity> Items)> GetPagedListAsync(int pageNumber, int pageSize, string? whereClause = null, string? orderByClause = null, object? param = null, string? tableName = null)
+        protected virtual async Task<PaginationDto<TEntity>> GetPagedListAsync(int pageNumber, int pageSize, string? whereClause = null, string? orderByClause = null, object? param = null, string? tableName = null)
         {
             string sql = SqlGenerator.GetRecordCountStatement(whereClause, tableName) + ";"
                 + SqlGenerator.GetSelectPagedStatement(pageNumber, pageSize, whereClause, orderByClause, tableName);
@@ -48,7 +49,7 @@ namespace IceCoffee.SimpleCRUD
             using var multi = await base.ExecuteQueryMultipleAsync(sql, param);
             var total = await multi.ReadSingleAsync<int>();
             var items = total > 0 ? await multi.ReadAsync<TEntity>() : Enumerable.Empty<TEntity>();
-            return (total, items);
+            return new PaginationDto<TEntity>() { Total = total, Items = items };
         }
         protected virtual int GetRecordCount(string? whereClause = null, object? param = null, string? tableName = null)
         {
@@ -91,7 +92,7 @@ namespace IceCoffee.SimpleCRUD
             return base.GetList();
         }
 
-        public virtual (int Total, IEnumerable<TEntity> Items) GetPagedList(int pageNumber, int pageSize)
+        public virtual PaginationDto<TEntity> GetPagedList(int pageNumber, int pageSize)
         {
             return base.GetPagedList(pageNumber, pageSize);
         }
@@ -211,7 +212,7 @@ namespace IceCoffee.SimpleCRUD
             return base.GetListAsync();
         }
 
-        public virtual Task<(int Total, IEnumerable<TEntity> Items)> GetPagedListAsync(int pageNumber, int pageSize)
+        public virtual Task<PaginationDto<TEntity>> GetPagedListAsync(int pageNumber, int pageSize)
         {
             return base.GetPagedListAsync(pageNumber, pageSize);
         }

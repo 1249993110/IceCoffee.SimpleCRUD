@@ -108,7 +108,7 @@ namespace IceCoffee.SimpleCRUD.DependencyInjection
             var repositoryTypes = new List<(Type ServiceType, Type ImplType)>();
             foreach (var implType in assembly.GetExportedTypes())
             {
-                if (implType.IsSubclassOf(typeof(RepositoryBase)) && implType.IsAbstract == false)
+                if (implType.IsSubclassOf(typeof(RepositoryBase)) && implType.IsAbstract == false && implType.IsGenericType == false)
                 {
                     var serviceType = implType.GetInterfaces().First(p => typeof(IRepository).IsAssignableFrom(p) && p != typeof(IRepository) && p.IsGenericType == false);
                     repositoryTypes.Add((serviceType, implType));

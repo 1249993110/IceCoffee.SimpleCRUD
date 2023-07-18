@@ -1,4 +1,6 @@
-﻿namespace IceCoffee.SimpleCRUD
+﻿using IceCoffee.SimpleCRUD.Dtos;
+
+namespace IceCoffee.SimpleCRUD
 {
     public interface IReadOnlyRepository<TEntity> : IRepository
     {
@@ -23,7 +25,7 @@
         /// <param name="pageNumber">Page number.</param>
         /// <param name="pageSize">Number per page.</param>
         /// <returns></returns>
-        (int Total, IEnumerable<TEntity> Items) GetPagedList(int pageNumber, int pageSize);
+        PaginationDto<TEntity> GetPagedList(int pageNumber, int pageSize);
 
         /// <summary>
         /// Get count of records.
@@ -53,7 +55,7 @@
         /// <param name="pageNumber">Page number.</param>
         /// <param name="pageSize">Number per page.</param>
         /// <returns></returns>
-        Task<(int Total, IEnumerable<TEntity> Items)> GetPagedListAsync(int pageNumber, int pageSize);
+        Task<PaginationDto<TEntity>> GetPagedListAsync(int pageNumber, int pageSize);
 
         /// <summary>
         /// Get count of records.

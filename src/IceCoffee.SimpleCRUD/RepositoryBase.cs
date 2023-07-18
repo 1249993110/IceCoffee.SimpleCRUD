@@ -21,7 +21,7 @@ namespace IceCoffee.SimpleCRUD
             _unitOfWork = unitOfWork;
         }
 
-        private (IDbConnection conn, IDbTransaction? tran) GetDbContext(bool useTransaction = false)
+        protected (IDbConnection conn, IDbTransaction? tran) GetDbContext(bool useTransaction = false)
         {
             if (_unitOfWork != null)
             {
@@ -108,6 +108,28 @@ namespace IceCoffee.SimpleCRUD
         {
             var (conn, tran) = GetDbContext();
             return conn.QueryAsync<TEntity>(sql, param, tran);
+        }
+
+        protected virtual IEnumerable<TReturn> ExecuteQuery<TFirst, TSecond, TReturn>(string sql, Func<TFirst, TSecond, TReturn> map, object? param = null, string splitOn = "Id")
+        {
+            var (conn, tran) = GetDbContext();
+            return conn.Query(sql, map, param, tran, splitOn: splitOn);
+        }
+        protected virtual Task<IEnumerable<TReturn>> ExecuteQueryAsync<TFirst, TSecond, TReturn>(string sql, Func<TFirst, TSecond, TReturn> map, object? param = null, string splitOn = "Id")
+        {
+            var (conn, tran) = GetDbContext();
+            return conn.QueryAsync(sql, map, param, tran, splitOn: splitOn);
+        }
+
+        protected virtual IEnumerable<TReturn> ExecuteQuery<TFirst, TSecond, TThird, TReturn>(string sql, Func<TFirst, TSecond, TThird, TReturn> map, object? param = null, string splitOn = "Id")
+        {
+            var (conn, tran) = GetDbContext();
+            return conn.Query(sql, map, param, tran, splitOn: splitOn);
+        }
+        protected virtual Task<IEnumerable<TReturn>> ExecuteQueryAsync<TFirst, TSecond, TThird, TReturn>(string sql, Func<TFirst, TSecond, TThird, TReturn> map, object? param = null, string splitOn = "Id")
+        {
+            var (conn, tran) = GetDbContext();
+            return conn.QueryAsync(sql, map, param, tran, splitOn: splitOn);
         }
 
         protected virtual GridReader ExecuteQueryMultiple(string sql, object? param = null)
