@@ -1,4 +1,5 @@
-﻿using IceCoffee.SimpleCRUD.OptionalAttributes;
+﻿using Dapper;
+using IceCoffee.SimpleCRUD.OptionalAttributes;
 using System.Reflection;
 using System.Text;
 
@@ -76,6 +77,27 @@ namespace IceCoffee.SimpleCRUD.SqlGenerators
                     _primaryKeyWhereClause = stringBuilder5.ToString();
                 }
             }
+
+            var propertyMap = new CustomPropertyTypeMap(entityType,
+                (type, columnName) =>
+                {
+                    var properties = type.GetProperties(BindingFlags.Instance | BindingFlags.Public)
+                            .Where(p => p.CanWrite && p.GetCustomAttribute<NotMappedAttribute>(true) == null);
+                    // 过滤定义了Column特性的属性
+                    var result = properties.FirstOrDefault(prop => prop
+                            .GetCustomAttributes(false)
+                            .OfType<ColumnAttribute>()
+                            .Any(attr => attr.Name == columnName));
+                    if (result != null)
+                    {
+                        return result;
+                    }
+                    // Column特性为空则返回默认对应列名的属性
+                    return properties.FirstOrDefault(prop => prop.Name == columnName);
+                }
+            );
+
+            SqlMapper.SetTypeMap(entityType, propertyMap);
         }
 
         public virtual string[] GetPrimaryKeys()
