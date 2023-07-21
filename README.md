@@ -172,11 +172,11 @@ public class FooRepository : RepositoryBase<Foo>, IFooRepository
 
 ```csharp
 // Register repositories
-services.AddRepositories((config) =>
+services.AddDbConnection((config) =>
 {
     config.ConnectionString = "";
     config.DbType = DbType.SQLite;
-}, assembly);
+}).AddRepositories(assembly);
 ```
 
 #### Use in API Controller
