@@ -172,10 +172,10 @@ public class FooRepository : RepositoryBase<Foo>, IFooRepository
 
 ```csharp
 // Register repositories
-services.AddDbConnection((config) =>
+services.AddDbConnection((options) =>
 {
-    config.ConnectionString = "";
-    config.DbType = DbType.SQLite;
+    options.ConnectionString = "";
+    options.DbType = DbType.SQLite;
 }).AddRepositories(assembly);
 ```
 
