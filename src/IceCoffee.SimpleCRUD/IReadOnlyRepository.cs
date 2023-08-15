@@ -25,7 +25,7 @@ namespace IceCoffee.SimpleCRUD
         /// <param name="pageNumber">Page number.</param>
         /// <param name="pageSize">Number per page.</param>
         /// <returns></returns>
-        PaginationDto<TEntity> GetPagedList(int pageNumber, int pageSize);
+        PagedDto<TEntity> GetPagedList(int pageNumber, int pageSize);
 
         /// <summary>
         /// Get count of records.
@@ -55,7 +55,7 @@ namespace IceCoffee.SimpleCRUD
         /// <param name="pageNumber">Page number.</param>
         /// <param name="pageSize">Number per page.</param>
         /// <returns></returns>
-        Task<PaginationDto<TEntity>> GetPagedListAsync(int pageNumber, int pageSize);
+        Task<PagedDto<TEntity>> GetPagedListAsync(int pageNumber, int pageSize);
 
         /// <summary>
         /// Get count of records.

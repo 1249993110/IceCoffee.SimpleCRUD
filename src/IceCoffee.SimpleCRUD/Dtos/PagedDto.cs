@@ -1,6 +1,6 @@
 ﻿namespace IceCoffee.SimpleCRUD.Dtos
 {
-    public class PaginationDto<TEntity>
+    public class PagedDto<TEntity>
     {
         /// <summary>
         /// Total
