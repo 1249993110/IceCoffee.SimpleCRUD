@@ -26,8 +26,8 @@
                 tableName ?? TableName,
                 whereClause == null ? string.Empty : "WHERE " + whereClause,
                 orderByClause == null ? string.Empty : "ORDER BY " + orderByClause,
-                (pageNumber - 1) * pageSize,
-                pageSize);
+                pageSize,
+                (pageNumber - 1) * pageSize);
             return sql;
         }
 
