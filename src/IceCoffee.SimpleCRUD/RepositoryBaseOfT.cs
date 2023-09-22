@@ -207,7 +207,7 @@ namespace IceCoffee.SimpleCRUD
             return base.GetFirstOrDefaultAsync(SqlGenerator.GetSingleKey() + "=@Id", null, new { Id = id });
         }
 
-        public Task<IEnumerable<TEntity>> GetAllAsync()
+        public virtual Task<IEnumerable<TEntity>> GetAllAsync()
         {
             return base.GetListAsync();
         }
