@@ -10,22 +10,14 @@
         /// 
         /// </summary>
         /// <param name="name"></param>
-        /// <param name="isView"></param>
-        public TableAttribute(string name, bool isView = false)
+        public TableAttribute(string name)
         {
             Name = name;
-            IsView = isView;
         }
 
         /// <summary>
         /// Table or view name.
         /// </summary>
         public string Name { get; private set; }
-
-        /// <summary>
-        /// Is it a view.
-        /// </summary>
-
-        public bool IsView { get; private set; }
     }
 }

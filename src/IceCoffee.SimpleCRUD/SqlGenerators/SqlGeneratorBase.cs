@@ -20,7 +20,7 @@ namespace IceCoffee.SimpleCRUD.SqlGenerators
         {
             var tableAttribute = entityType.GetCustomAttribute<TableAttribute>(true);
             TableName = tableAttribute?.Name ?? entityType.Name;
-            IsView = tableAttribute != null && tableAttribute.IsView;
+            IsView = entityType.GetCustomAttribute<IsViewAttribute>(true) != null;
 
             var properties = entityType.GetProperties(BindingFlags.Instance | BindingFlags.Public)
                     .Where(p => p.CanWrite && p.GetCustomAttribute<NotMappedAttribute>(true) == null);
