@@ -17,6 +17,11 @@ namespace IceCoffee.SimpleCRUD
         {
             var nameParam = Expression.Parameter(typeof(string), "dbAliase");
             var constructor = typeof(GenericRepository<>).MakeGenericType(type).GetConstructor(new Type[] { typeof(string) });
+            if(constructor == null)
+            {
+                throw new Exception("Cannot get the constructor method of the specified class: " + type.FullName);
+            }
+
             var objExpression = Expression.New(constructor, nameParam);
             var lambda = Expression.Lambda<Func<string, object>>(objExpression, nameParam);
             return lambda.Compile();

@@ -148,7 +148,7 @@ namespace IceCoffee.SimpleCRUD
             var (conn, tran) = GetDbContext();
             return conn.ExecuteScalar<TReturn>(sql, param, tran);
         }
-        protected virtual Task<TReturn> ExecuteScalarAsync<TReturn>(string sql, object? param = null)
+        protected virtual Task<TReturn?> ExecuteScalarAsync<TReturn>(string sql, object? param = null)
         {
             var (conn, tran) = GetDbContext();
             return conn.ExecuteScalarAsync<TReturn>(sql, param, tran);
