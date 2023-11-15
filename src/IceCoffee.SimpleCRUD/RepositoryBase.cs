@@ -143,7 +143,7 @@ namespace IceCoffee.SimpleCRUD
             return conn.QueryMultipleAsync(sql, param, tran);
         }
 
-        protected virtual TReturn ExecuteScalar<TReturn>(string sql, object? param = null)
+        protected virtual TReturn? ExecuteScalar<TReturn>(string sql, object? param = null)
         {
             var (conn, tran) = GetDbContext();
             return conn.ExecuteScalar<TReturn>(sql, param, tran);

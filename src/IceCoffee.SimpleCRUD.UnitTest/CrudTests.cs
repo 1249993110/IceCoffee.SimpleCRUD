@@ -119,7 +119,7 @@ namespace IceCoffee.SimpleCRUD.UnitTest
                     uow.Commit();
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 var entity = new GenericRepository<Foo>().GetById(2);
                 Assert.That(entity, Is.Null);
