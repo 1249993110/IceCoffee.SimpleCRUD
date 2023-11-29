@@ -21,6 +21,40 @@
         int Insert(IEnumerable<TEntity> entities, bool useTransaction = false);
         #endregion
 
+        #region InsertOrReplace
+        /// <summary>
+        /// Insert or replace a record based on the primary key.
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        int InsertOrReplace(TEntity entity);
+
+        /// <summary>
+        /// Bulk insert or replace records based on the primary key.
+        /// </summary>
+        /// <param name="entities"></param>
+        /// <param name="useTransaction"></param>
+        /// <returns></returns>
+        int InsertOrReplace(IEnumerable<TEntity> entities, bool useTransaction = false);
+        #endregion
+
+        #region InsertOrIgnore
+        /// <summary>
+        /// Try insert a record based on the primary key, ignore if the record already exists.
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        int InsertOrIgnore(TEntity entity);
+
+        /// <summary>
+        /// Try bulk insert records based on the primary key, ignore if the record already exists.
+        /// </summary>
+        /// <param name="entities"></param>
+        /// <param name="useTransaction"></param>
+        /// <returns></returns>
+        int InsertOrIgnore(IEnumerable<TEntity> entities, bool useTransaction = false);
+        #endregion
+
         #region Update
 
         /// <summary>
@@ -74,40 +108,6 @@
         int DeleteByIds<TId>(IEnumerable<TId> ids, bool useTransaction = false);
         #endregion
 
-        #region InsertOrReplace
-        /// <summary>
-        /// Insert or replace a record based on the primary key.
-        /// </summary>
-        /// <param name="entity"></param>
-        /// <returns></returns>
-        int InsertOrReplace(TEntity entity);
-
-        /// <summary>
-        /// Bulk insert or replace records based on the primary key.
-        /// </summary>
-        /// <param name="entities"></param>
-        /// <param name="useTransaction"></param>
-        /// <returns></returns>
-        int InsertOrReplace(IEnumerable<TEntity> entities, bool useTransaction = false);
-        #endregion
-
-        #region InsertOrIgnore
-        /// <summary>
-        /// Try insert a record based on the primary key, ignore if the record already exists.
-        /// </summary>
-        /// <param name="entity"></param>
-        /// <returns></returns>
-        int InsertOrIgnore(TEntity entity);
-
-        /// <summary>
-        /// Try bulk insert records based on the primary key, ignore if the record already exists.
-        /// </summary>
-        /// <param name="entities"></param>
-        /// <param name="useTransaction"></param>
-        /// <returns></returns>
-        int InsertOrIgnore(IEnumerable<TEntity> entities, bool useTransaction = false);
-        #endregion
-
         #endregion
 
         #region Async
@@ -127,6 +127,40 @@
         /// <param name="useTransaction"></param>
         /// <returns></returns>
         Task<int> InsertAsync(IEnumerable<TEntity> entities, bool useTransaction = false);
+        #endregion
+
+        #region InsertOrReplace
+        /// <summary>
+        /// Insert or replace a record based on the primary key.
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        Task<int> InsertOrReplaceAsync(TEntity entity);
+
+        /// <summary>
+        /// Bulk insert or replace records based on the primary key.
+        /// </summary>
+        /// <param name="entities"></param>
+        /// <param name="useTransaction"></param>
+        /// <returns></returns>
+        Task<int> InsertOrReplaceAsync(IEnumerable<TEntity> entities, bool useTransaction = false);
+        #endregion
+
+        #region InsertOrIgnore
+        /// <summary>
+        /// Try insert a record based on the primary key, ignore if the record already exists.
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        Task<int> InsertOrIgnoreAsync(TEntity entity);
+
+        /// <summary>
+        /// Try bulk insert records based on the primary key, ignore if the record already exists.
+        /// </summary>
+        /// <param name="entities"></param>
+        /// <param name="useTransaction"></param>
+        /// <returns></returns>
+        Task<int> InsertOrIgnoreAsync(IEnumerable<TEntity> entities, bool useTransaction = false);
         #endregion
 
         #region Update
@@ -178,40 +212,6 @@
         /// <param name="useTransaction"></param>
         /// <returns></returns>
         Task<int> DeleteByIdsAsync<TId>(IEnumerable<TId> ids, bool useTransaction = false);
-        #endregion
-
-        #region InsertOrReplace
-        /// <summary>
-        /// Insert or replace a record based on the primary key.
-        /// </summary>
-        /// <param name="entity"></param>
-        /// <returns></returns>
-        Task<int> InsertOrReplaceAsync(TEntity entity);
-
-        /// <summary>
-        /// Bulk insert or replace records based on the primary key.
-        /// </summary>
-        /// <param name="entities"></param>
-        /// <param name="useTransaction"></param>
-        /// <returns></returns>
-        Task<int> InsertOrReplaceAsync(IEnumerable<TEntity> entities, bool useTransaction = false);
-        #endregion
-
-        #region InsertOrIgnore
-        /// <summary>
-        /// Try insert a record based on the primary key, ignore if the record already exists.
-        /// </summary>
-        /// <param name="entity"></param>
-        /// <returns></returns>
-        Task<int> InsertOrIgnoreAsync(TEntity entity);
-
-        /// <summary>
-        /// Try bulk insert records based on the primary key, ignore if the record already exists.
-        /// </summary>
-        /// <param name="entities"></param>
-        /// <param name="useTransaction"></param>
-        /// <returns></returns>
-        Task<int> InsertOrIgnoreAsync(IEnumerable<TEntity> entities, bool useTransaction = false);
         #endregion
 
         #endregion

@@ -93,7 +93,7 @@ namespace IceCoffee.SimpleCRUD.SqlGenerators
                         return result;
                     }
                     // Column特性为空则返回默认对应列名的属性
-                    return properties.FirstOrDefault(prop => prop.Name == columnName);
+                    return properties.First(prop => prop.Name == columnName);
                 }
             );
 

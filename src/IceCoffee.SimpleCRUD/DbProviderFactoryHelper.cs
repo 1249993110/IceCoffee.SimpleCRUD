@@ -30,10 +30,12 @@ namespace IceCoffee.SimpleCRUD
         {
             try
             {
+#pragma warning disable CS8600,CS8602,CS8603
                 return (DbProviderFactory)LoadAssembly(assemblyName)
                         .GetType(@namespace)
                         .GetField("Instance", BindingFlags.Static | BindingFlags.Public)
                         .GetValue(null);
+#pragma warning restore
             }
             catch (Exception ex)
             {

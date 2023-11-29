@@ -28,17 +28,19 @@ namespace IceCoffee.SimpleCRUD
         }
         private static object CreateInstance(Type entityType, string dbAliase)
         {
+            object? obj;
             try
             {
                 var createObject = _cachedDelegates.GetOrAdd(entityType, CreateDelegate);
-                var obj = createObject(dbAliase);
+                obj = createObject.Invoke(dbAliase);
                 return obj;
             }
             catch
             {
             }
 
-            return Activator.CreateInstance(typeof(GenericRepository<>).MakeGenericType(entityType), dbAliase);
+            obj = Activator.CreateInstance(typeof(GenericRepository<>).MakeGenericType(entityType), dbAliase);
+            return obj ?? throw new Exception($"Failed to instantiate GenericRepository with entity type {entityType.FullName}");
         }
 
         public IRepository<TEntity> GetGenericRepository<TEntity>()

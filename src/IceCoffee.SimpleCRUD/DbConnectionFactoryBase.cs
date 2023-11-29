@@ -19,6 +19,12 @@ namespace IceCoffee.SimpleCRUD
             });
 
             var connection = dbProviderFactory.CreateConnection();
+
+            if(connection == null)
+            {
+                throw new Exception("Create connection by db provider factory failed.");
+            }
+
             connection.ConnectionString = options.ConnectionString;
             return connection;
         }
