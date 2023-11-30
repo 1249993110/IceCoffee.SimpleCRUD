@@ -1,4 +1,6 @@
-﻿namespace IceCoffee.SimpleCRUD.SqlGenerators
+﻿using System.Linq;
+
+namespace IceCoffee.SimpleCRUD.SqlGenerators
 {
     public class PostgreSqlGenerator : SqlGeneratorBase
     {
@@ -8,14 +10,24 @@
 
         public override string GetInsertOrIgnoreStatement(string? tableName = null)
         {
-            string sql = string.Format("INSERT INTO {0} {1} ON CONFLICT WHERE {2} DO NOTHING", tableName ?? TableName, InsertIntoClause, GetPrimaryKeyWhereClause());
+#if NETCOREAPP
+            string primaryKeys = string.Join(',', GetPrimaryKeys());
+#else
+            string primaryKeys = string.Join(",", GetPrimaryKeys());
+#endif
+            string sql = string.Format("INSERT INTO {0} {1} ON CONFLICT ({2}) DO NOTHING", tableName ?? TableName, InsertIntoClause, primaryKeys);
             return sql;
         }
 
         public override string GetInsertOrReplaceStatement(string? tableName = null)
         {
-            string sql = string.Format("INSERT INTO {0} {1} ON CONFLICT WHERE {2} DO UPDATE {0} SET {3}",
-                tableName ?? TableName, InsertIntoClause, GetPrimaryKeyWhereClause(), UpdateSetClause);
+#if NETCOREAPP
+            string primaryKeys = string.Join(',', GetPrimaryKeys());
+#else
+            string primaryKeys = string.Join(",", GetPrimaryKeys());
+#endif
+            string sql = string.Format("INSERT INTO {0} {1} ON CONFLICT ({2}) DO UPDATE SET {3}",
+                tableName ?? TableName, InsertIntoClause, primaryKeys, UpdateSetClause);
             return sql;
         }
 
