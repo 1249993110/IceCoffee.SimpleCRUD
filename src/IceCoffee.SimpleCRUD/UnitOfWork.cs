@@ -7,6 +7,7 @@ namespace IceCoffee.SimpleCRUD
         private IDbConnection _connection;
         private IDbTransaction _transaction;
         private readonly IRepositoryFactory _repositoryFactory;
+        private readonly IsolationLevel? _isolationLevel;
 
         public UnitOfWork(IDbConnection connection, IRepositoryFactory repositoryFactory)
         {
@@ -28,6 +29,7 @@ namespace IceCoffee.SimpleCRUD
             }
             _transaction = _connection.BeginTransaction(il);
             _repositoryFactory = repositoryFactory;
+            _isolationLevel = il;
         }
 
         public IDbConnection DbConnection => _connection;
@@ -47,7 +49,7 @@ namespace IceCoffee.SimpleCRUD
             finally
             {
                 _transaction.Dispose();
-                _transaction = _connection.BeginTransaction();
+                _transaction = _isolationLevel.HasValue ? _connection.BeginTransaction(_isolationLevel.Value) : _connection.BeginTransaction();
             }
         }
 

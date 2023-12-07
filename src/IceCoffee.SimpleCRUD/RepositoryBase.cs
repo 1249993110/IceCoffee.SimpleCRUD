@@ -44,27 +44,28 @@ namespace IceCoffee.SimpleCRUD
             try
             {
                 int result = conn.Execute(sql, param, tran);
-                if (_unitOfWork == null)
+                if (_unitOfWork == null && tran != null)
                 {
-                    tran?.Commit();
+                    tran.Commit();
                 }
 
                 return result;
             }
             catch
             {
-                if (_unitOfWork == null)
+                if (_unitOfWork == null && tran != null)
                 {
-                    tran?.Rollback();
+                    tran.Rollback();
                 }
 
                 throw;
             }
             finally
             {
-                if (_unitOfWork == null)
+                if (_unitOfWork == null && tran != null)
                 {
-                    tran?.Dispose();
+                    tran.Dispose();
+                    conn.Dispose();
                 }
             }
         }
@@ -74,27 +75,28 @@ namespace IceCoffee.SimpleCRUD
             try
             {
                 int result = await conn.ExecuteAsync(sql, param, tran);
-                if (_unitOfWork == null)
+                if (_unitOfWork == null && tran != null)
                 {
-                    tran?.Commit();
+                    tran.Commit();
                 }
 
                 return result;
             }
             catch
             {
-                if (_unitOfWork == null)
+                if (_unitOfWork == null && tran != null)
                 {
-                    tran?.Rollback();
+                    tran.Rollback();
                 }
 
                 throw;
             }
             finally
             {
-                if (_unitOfWork == null)
+                if (_unitOfWork == null && tran != null)
                 {
-                    tran?.Dispose();
+                    tran.Dispose();
+                    conn.Dispose();
                 }
             }
         }
