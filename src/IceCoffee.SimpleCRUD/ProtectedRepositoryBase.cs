@@ -200,12 +200,12 @@ namespace IceCoffee.SimpleCRUD
         }
         protected virtual int DeleteByIds<TId>(IEnumerable<TId> ids, bool useTransaction = false, string? tableName = null)
         {
-            string sql = SqlGenerator.GetDeleteStatement(SqlGenerator.GetSingleKey() + " IN @Ids", tableName);
+            string sql = SqlGenerator.GetDeleteStatement(SqlGenerator.GetSingleKey() + " =ANY(@Ids)", tableName);
             return base.Execute(sql, new { Ids = ids }, useTransaction);
         }
         protected virtual Task<int> DeleteByIdsAsync<TId>(IEnumerable<TId> ids, bool useTransaction = false, string? tableName = null)
         {
-            string sql = SqlGenerator.GetDeleteStatement(SqlGenerator.GetSingleKey() + " IN @Ids", tableName);
+            string sql = SqlGenerator.GetDeleteStatement(SqlGenerator.GetSingleKey() + " =ANY(@Ids)", tableName);
             return base.ExecuteAsync(sql, new { Ids = ids }, useTransaction);
         }
         #endregion
