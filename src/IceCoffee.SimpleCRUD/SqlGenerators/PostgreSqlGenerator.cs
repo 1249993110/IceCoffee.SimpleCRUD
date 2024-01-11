@@ -48,5 +48,10 @@ namespace IceCoffee.SimpleCRUD.SqlGenerators
         {
             return "I" + base.GetKeywordLikeClause(keywordParamName);
         }
+
+        public override string GetInIdsClause(string propName = "Ids")
+        {
+            return $"=ANY(@{propName})";
+        }
     }
 }

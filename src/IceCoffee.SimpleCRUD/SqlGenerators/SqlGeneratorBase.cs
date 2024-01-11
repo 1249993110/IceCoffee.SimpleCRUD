@@ -159,6 +159,11 @@ namespace IceCoffee.SimpleCRUD.SqlGenerators
             }
 
             return primaryKeysp[0];
-        }        
+        }
+
+        public virtual string GetInIdsClause(string propName = "Ids")
+        {
+            return " IN @" + propName;
+        }
     }
 }

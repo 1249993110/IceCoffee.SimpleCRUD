@@ -21,6 +21,7 @@
         string GetSelectPagedStatement(int pageNumber, int pageSize, string? whereClause = null, string? orderByClause = null, string? tableName = null);
 
         string GetKeywordLikeClause(string keywordParamName = "Keyword");
+        string GetInIdsClause(string propName = "Ids");
         string GetRecordCountStatement(string? whereClause = null, string? tableName = null);
         string GetSingleKey();
     }
