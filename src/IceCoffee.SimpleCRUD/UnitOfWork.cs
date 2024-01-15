@@ -9,7 +9,7 @@ namespace IceCoffee.SimpleCRUD
         private readonly IRepositoryFactory _repositoryFactory;
         private readonly IsolationLevel? _isolationLevel;
 
-        public UnitOfWork(IDbConnection connection, IRepositoryFactory repositoryFactory)
+        internal UnitOfWork(IDbConnection connection, IRepositoryFactory repositoryFactory)
         {
             _connection = connection;
             if (_connection.State != ConnectionState.Open)
@@ -20,7 +20,7 @@ namespace IceCoffee.SimpleCRUD
             _repositoryFactory = repositoryFactory;
         }
 
-        public UnitOfWork(IDbConnection connection, IRepositoryFactory repositoryFactory, IsolationLevel il)
+        internal UnitOfWork(IDbConnection connection, IRepositoryFactory repositoryFactory, IsolationLevel il)
         {
             _connection = connection;
             if (_connection.State != ConnectionState.Open)
