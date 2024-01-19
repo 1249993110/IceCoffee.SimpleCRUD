@@ -167,7 +167,7 @@ namespace IceCoffee.SimpleCRUD
             return conn.QueryAsync<TEntity>(new CommandDefinition(procName, parameters, tran, commandType: CommandType.StoredProcedure));
         }
 
-        public object Clone()
+        object ICloneable.Clone()
         {
             return this.MemberwiseClone();
         }
