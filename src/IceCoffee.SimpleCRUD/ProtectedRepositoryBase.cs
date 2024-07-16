@@ -45,7 +45,7 @@ namespace IceCoffee.SimpleCRUD
                 + SqlGenerator.GetSelectPagedStatement(pageNumber, pageSize, whereClause, orderByClause, tableName);
 
             using var multi = base.ExecuteQueryMultiple(sql, param);
-            var total = multi.ReadSingle<int>();
+            int total = multi.ReadSingle<int>();
             var items = total > 0 ? multi.Read<TEntity>() : Enumerable.Empty<TEntity>();
             return new PagedDto<TEntity>() { Total = total, Items = items };
         }
@@ -55,7 +55,7 @@ namespace IceCoffee.SimpleCRUD
                 + SqlGenerator.GetSelectPagedStatement(pageNumber, pageSize, whereClause, orderByClause, tableName);
 
             using var multi = await base.ExecuteQueryMultipleAsync(sql, param);
-            var total = await multi.ReadSingleAsync<int>();
+            int total = await multi.ReadSingleAsync<int>();
             var items = total > 0 ? await multi.ReadAsync<TEntity>() : Enumerable.Empty<TEntity>();
             return new PagedDto<TEntity>() { Total = total, Items = items };
         }
