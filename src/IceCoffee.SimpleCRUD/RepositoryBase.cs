@@ -171,5 +171,9 @@ namespace IceCoffee.SimpleCRUD
         {
             return this.MemberwiseClone();
         }
+
+        public abstract int DeleteAll(bool useTransaction = false);
+
+        public abstract Task<int> DeleteAllAsync(bool useTransaction = false);
     }
 }

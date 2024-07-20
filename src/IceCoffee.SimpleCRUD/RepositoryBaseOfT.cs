@@ -100,6 +100,11 @@ namespace IceCoffee.SimpleCRUD
         {
             return base.DeleteByIds(ids, useTransaction);
         }
+
+        public override int DeleteAll(bool useTransaction = false)
+        {
+            return base.Execute("DELETE FROM " + SqlGenerator.TableName, useTransaction: useTransaction);
+        }
         #endregion
 
         #endregion
@@ -186,6 +191,11 @@ namespace IceCoffee.SimpleCRUD
         public virtual Task<int> DeleteByIdsAsync<TId>(IEnumerable<TId> ids, bool useTransaction = false)
         {
             return base.DeleteByIdsAsync(ids, useTransaction);
+        }
+
+        public override Task<int> DeleteAllAsync(bool useTransaction = false)
+        {
+            return base.ExecuteAsync("DELETE FROM " + SqlGenerator.TableName, useTransaction: useTransaction);
         }
         #endregion
     }
