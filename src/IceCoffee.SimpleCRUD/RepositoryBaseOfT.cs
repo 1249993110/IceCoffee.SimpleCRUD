@@ -1,4 +1,5 @@
 ﻿using IceCoffee.SimpleCRUD.Dtos;
+using IceCoffee.SimpleCRUD.SqlGenerators;
 
 namespace IceCoffee.SimpleCRUD
 {

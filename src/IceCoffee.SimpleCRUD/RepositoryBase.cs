@@ -1,4 +1,5 @@
 ﻿using Dapper;
+using IceCoffee.SimpleCRUD.SqlGenerators;
 using System.Data;
 using static Dapper.SqlMapper;
 
@@ -14,6 +15,11 @@ namespace IceCoffee.SimpleCRUD
         {
             _dbConnectionFactory = dbConnectionFactory;
             _dbAliase = dbAliase;
+        }
+
+        protected virtual ISqlGenerator GetSqlGenerator<T>()
+        {
+            return SqlGeneratorFactory.GetSqlGenerator(_dbConnectionFactory.GetOptions(_dbAliase).DbType, typeof(T));
         }
 
         internal void SetUnitOfWork(IUnitOfWork unitOfWork)
