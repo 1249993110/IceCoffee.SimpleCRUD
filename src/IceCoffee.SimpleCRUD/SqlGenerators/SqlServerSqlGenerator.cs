@@ -32,5 +32,10 @@
                 pageSize);
             return sql;
         }
+
+        public override string GetSelectAutoIncrement()
+        {
+            return "SELECT SCOPE_IDENTITY()";
+        }
     }
 }

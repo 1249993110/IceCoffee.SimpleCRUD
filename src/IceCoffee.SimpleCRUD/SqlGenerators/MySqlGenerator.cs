@@ -30,5 +30,10 @@
                 (pageNumber - 1) * pageSize);
             return sql;
         }
+
+        public override string GetSelectAutoIncrement()
+        {
+            return "SELECT LAST_INSERT_ID()";
+        }
     }
 }

@@ -1,5 +1,7 @@
 ﻿using IceCoffee.SimpleCRUD.Dtos;
 using IceCoffee.SimpleCRUD.SqlGenerators;
+using System;
+using System.Security.Cryptography;
 
 namespace IceCoffee.SimpleCRUD
 {
@@ -37,6 +39,11 @@ namespace IceCoffee.SimpleCRUD
         public virtual int Insert(TEntity entity)
         {
             return base.Insert(entity);
+        }
+
+        public virtual int Insert<TId>(TEntity entity, out TId id)
+        {
+            return base.Insert(entity, out id);
         }
 
         public virtual int Insert(IEnumerable<TEntity> entities, bool useTransaction = false)

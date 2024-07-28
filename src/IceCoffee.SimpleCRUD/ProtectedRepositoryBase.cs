@@ -77,6 +77,14 @@ namespace IceCoffee.SimpleCRUD
             string sql = SqlGenerator.GetInsertStatement(tableName);
             return base.Execute(sql, entity);
         }
+        protected virtual int Insert<TId>(TEntity entity, out TId id, string? tableName = null)
+        {
+            string sql = SqlGenerator.GetInsertStatement(tableName) + ";" + SqlGenerator.GetSelectAutoIncrement();
+            using var multi =  base.ExecuteQueryMultiple(sql, entity, true);
+            int rowCount = multi.ReadSingle<int>();
+            id = multi.ReadSingle<TId>();
+            return rowCount;
+        }
         protected virtual Task<int> InsertAsync(TEntity entity, string? tableName = null)
         {
             string sql = SqlGenerator.GetInsertStatement(tableName);

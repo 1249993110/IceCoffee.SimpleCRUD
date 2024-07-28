@@ -165,5 +165,10 @@ namespace IceCoffee.SimpleCRUD.SqlGenerators
         {
             return " IN @" + propName;
         }
+
+        public virtual string GetSelectAutoIncrement()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

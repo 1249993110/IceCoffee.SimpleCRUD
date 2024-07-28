@@ -53,5 +53,10 @@ namespace IceCoffee.SimpleCRUD.SqlGenerators
         {
             return $"=ANY(@{propName})";
         }
+
+        public override string GetSelectAutoIncrement()
+        {
+            return "SELECT SCOPE_IDENTITY()";
+        }
     }
 }

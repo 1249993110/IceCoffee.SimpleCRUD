@@ -140,15 +140,67 @@ namespace IceCoffee.SimpleCRUD
             return conn.QueryAsync(sql, map, param, tran, splitOn: splitOn);
         }
 
-        protected virtual GridReader ExecuteQueryMultiple(string sql, object? param = null)
+        protected virtual GridReader ExecuteQueryMultiple(string sql, object? param = null, bool useTransaction = false)
         {
-            var (conn, tran) = GetDbContext();
-            return conn.QueryMultiple(sql, param, tran);
+            var (conn, tran) = GetDbContext(useTransaction);
+            try
+            {
+                var result = conn.QueryMultiple(sql, param, tran);
+                if (_unitOfWork == null && tran != null)
+                {
+                    tran.Commit();
+                }
+
+                return result;
+            }
+            catch
+            {
+                if (_unitOfWork == null && tran != null)
+                {
+                    tran.Rollback();
+                }
+
+                throw;
+            }
+            finally
+            {
+                if (_unitOfWork == null && tran != null)
+                {
+                    tran.Dispose();
+                    conn.Dispose();
+                }
+            }
         }
-        protected virtual Task<GridReader> ExecuteQueryMultipleAsync(string sql, object? param = null)
+        protected virtual async Task<GridReader> ExecuteQueryMultipleAsync(string sql, object? param = null, bool useTransaction = false)
         {
-            var (conn, tran) = GetDbContext();
-            return conn.QueryMultipleAsync(sql, param, tran);
+            var (conn, tran) = GetDbContext(useTransaction);
+            try
+            {
+                var result = await conn.QueryMultipleAsync(sql, param, tran);
+                if (_unitOfWork == null && tran != null)
+                {
+                    tran.Commit();
+                }
+
+                return result;
+            }
+            catch
+            {
+                if (_unitOfWork == null && tran != null)
+                {
+                    tran.Rollback();
+                }
+
+                throw;
+            }
+            finally
+            {
+                if (_unitOfWork == null && tran != null)
+                {
+                    tran.Dispose();
+                    conn.Dispose();
+                }
+            }
         }
 
         protected virtual TReturn? ExecuteScalar<TReturn>(string sql, object? param = null)

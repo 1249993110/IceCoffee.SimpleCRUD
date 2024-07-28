@@ -1,4 +1,6 @@
-﻿namespace IceCoffee.SimpleCRUD
+﻿using System.Security.Cryptography;
+
+namespace IceCoffee.SimpleCRUD
 {
     public interface IRepository<TEntity> : IReadOnlyRepository<TEntity>
     {
@@ -11,6 +13,14 @@
         /// <param name="entity"></param>
         /// <returns></returns>
         int Insert(TEntity entity);
+
+        /// <summary>
+        /// Insert a record.
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <param name="id">Auto increment id</param>
+        /// <returns></returns>
+        int Insert<TId>(TEntity entity, out TId id);
 
         /// <summary>
         /// Bulk insert records.

@@ -35,5 +35,10 @@
         {
             return string.Format("LIKE '%'||@{0}||'%'", keywordParamName);
         }
+
+        public override string GetSelectAutoIncrement()
+        {
+            return "SELECT last_insert_rowid()";
+        }
     }
 }
