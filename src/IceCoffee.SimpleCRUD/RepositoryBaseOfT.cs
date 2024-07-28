@@ -41,9 +41,9 @@ namespace IceCoffee.SimpleCRUD
             return base.Insert(entity);
         }
 
-        public virtual int Insert<TId>(TEntity entity, out TId id)
+        public virtual TId? Insert<TId>(TEntity entity)
         {
-            return base.Insert(entity, out id);
+            return base.Insert<TId>(entity);
         }
 
         public virtual int Insert(IEnumerable<TEntity> entities, bool useTransaction = false)
@@ -143,6 +143,11 @@ namespace IceCoffee.SimpleCRUD
         public virtual Task<int> InsertAsync(TEntity entity)
         {
             return base.InsertAsync(entity);
+        }
+
+        public virtual Task<TId?> InsertAsync<TId>(TEntity entity)
+        {
+            return base.InsertAsync<TId>(entity);
         }
 
         public virtual Task<int> InsertAsync(IEnumerable<TEntity> entities, bool useTransaction = false)

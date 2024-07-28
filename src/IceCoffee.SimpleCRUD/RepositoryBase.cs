@@ -203,15 +203,67 @@ namespace IceCoffee.SimpleCRUD
             }
         }
 
-        protected virtual TReturn? ExecuteScalar<TReturn>(string sql, object? param = null)
+        protected virtual TReturn? ExecuteScalar<TReturn>(string sql, object? param = null, bool useTransaction = false)
         {
-            var (conn, tran) = GetDbContext();
-            return conn.ExecuteScalar<TReturn>(sql, param, tran);
+            var (conn, tran) = GetDbContext(useTransaction);
+            try
+            {
+                var result = conn.ExecuteScalar<TReturn>(sql, param, tran);
+                if (_unitOfWork == null && tran != null)
+                {
+                    tran.Commit();
+                }
+
+                return result;
+            }
+            catch
+            {
+                if (_unitOfWork == null && tran != null)
+                {
+                    tran.Rollback();
+                }
+
+                throw;
+            }
+            finally
+            {
+                if (_unitOfWork == null && tran != null)
+                {
+                    tran.Dispose();
+                    conn.Dispose();
+                }
+            }
         }
-        protected virtual Task<TReturn?> ExecuteScalarAsync<TReturn>(string sql, object? param = null)
+        protected virtual async Task<TReturn?> ExecuteScalarAsync<TReturn>(string sql, object? param = null, bool useTransaction = false)
         {
-            var (conn, tran) = GetDbContext();
-            return conn.ExecuteScalarAsync<TReturn>(sql, param, tran);
+            var (conn, tran) = GetDbContext(useTransaction);
+            try
+            {
+                var result = await conn.ExecuteScalarAsync<TReturn>(sql, param, tran);
+                if (_unitOfWork == null && tran != null)
+                {
+                    tran.Commit();
+                }
+
+                return result;
+            }
+            catch
+            {
+                if (_unitOfWork == null && tran != null)
+                {
+                    tran.Rollback();
+                }
+
+                throw;
+            }
+            finally
+            {
+                if (_unitOfWork == null && tran != null)
+                {
+                    tran.Dispose();
+                    conn.Dispose();
+                }
+            }
         }
 
         protected virtual IEnumerable<TEntity> ExecuteProcedure<TEntity>(string procName, DynamicParameters parameters)

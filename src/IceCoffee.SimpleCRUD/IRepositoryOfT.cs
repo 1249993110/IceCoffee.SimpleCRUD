@@ -17,10 +17,10 @@ namespace IceCoffee.SimpleCRUD
         /// <summary>
         /// Insert a record.
         /// </summary>
+        /// <typeparam name="TId">Auto increment id</typeparam>
         /// <param name="entity"></param>
-        /// <param name="id">Auto increment id</param>
         /// <returns></returns>
-        int Insert<TId>(TEntity entity, out TId id);
+        TId? Insert<TId>(TEntity entity);
 
         /// <summary>
         /// Bulk insert records.
@@ -129,6 +129,14 @@ namespace IceCoffee.SimpleCRUD
         /// <param name="entity"></param>
         /// <returns></returns>
         Task<int> InsertAsync(TEntity entity);
+
+        /// <summary>
+        /// Insert a record.
+        /// </summary>
+        /// <typeparam name="TId">Auto increment id</typeparam>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        Task<TId?> InsertAsync<TId>(TEntity entity);
 
         /// <summary>
         /// Bulk insert records.

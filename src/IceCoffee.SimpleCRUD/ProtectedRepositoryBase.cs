@@ -41,7 +41,7 @@ namespace IceCoffee.SimpleCRUD
         }
         protected virtual PagedDto<TEntity> GetPagedList(int pageNumber, int pageSize, string? whereClause = null, string? orderByClause = null, object? param = null, string? tableName = null)
         {
-            string sql = SqlGenerator.GetRecordCountStatement(whereClause, tableName) + ";"
+            string sql = SqlGenerator.GetRecordCountStatement(whereClause, tableName)
                 + SqlGenerator.GetSelectPagedStatement(pageNumber, pageSize, whereClause, orderByClause, tableName);
 
             using var multi = base.ExecuteQueryMultiple(sql, param);
@@ -51,7 +51,7 @@ namespace IceCoffee.SimpleCRUD
         }
         protected virtual async Task<PagedDto<TEntity>> GetPagedListAsync(int pageNumber, int pageSize, string? whereClause = null, string? orderByClause = null, object? param = null, string? tableName = null)
         {
-            string sql = SqlGenerator.GetRecordCountStatement(whereClause, tableName) + ";"
+            string sql = SqlGenerator.GetRecordCountStatement(whereClause, tableName)
                 + SqlGenerator.GetSelectPagedStatement(pageNumber, pageSize, whereClause, orderByClause, tableName);
 
             using var multi = await base.ExecuteQueryMultipleAsync(sql, param);
@@ -77,18 +77,20 @@ namespace IceCoffee.SimpleCRUD
             string sql = SqlGenerator.GetInsertStatement(tableName);
             return base.Execute(sql, entity);
         }
-        protected virtual int Insert<TId>(TEntity entity, out TId id, string? tableName = null)
+        protected virtual TId? Insert<TId>(TEntity entity, string? tableName = null)
         {
-            string sql = SqlGenerator.GetInsertStatement(tableName) + ";" + SqlGenerator.GetSelectAutoIncrement();
-            using var multi =  base.ExecuteQueryMultiple(sql, entity, true);
-            int rowCount = multi.ReadSingle<int>();
-            id = multi.ReadSingle<TId>();
-            return rowCount;
+            string sql = SqlGenerator.GetInsertStatement(tableName) + SqlGenerator.GetSelectAutoIncrement();
+            return base.ExecuteScalar<TId>(sql, entity, true);
         }
         protected virtual Task<int> InsertAsync(TEntity entity, string? tableName = null)
         {
             string sql = SqlGenerator.GetInsertStatement(tableName);
             return base.ExecuteAsync(sql, entity);
+        }
+        protected virtual Task<TId?> InsertAsync<TId>(TEntity entity, string? tableName = null)
+        {
+            string sql = SqlGenerator.GetInsertStatement(tableName) + SqlGenerator.GetSelectAutoIncrement();
+            return base.ExecuteScalarAsync<TId>(sql, entity, true);
         }
         protected virtual int Insert(IEnumerable<TEntity> entities, bool useTransaction = false, string? tableName = null)
         {

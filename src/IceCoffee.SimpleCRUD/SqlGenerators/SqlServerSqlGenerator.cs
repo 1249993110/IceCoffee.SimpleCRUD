@@ -23,7 +23,7 @@
         public override string GetSelectPagedStatement(int pageNumber, int pageSize, string? whereClause = null, string? orderByClause = null, string? tableName = null)
         {
             string sql = string.Format(
-                "SELECT {0} FROM {1} {2} ORDER BY {3} OFFSET {4} ROWS FETCH NEXT {5} ROWS ONLY",
+                ";SELECT {0} FROM {1} {2} ORDER BY {3} OFFSET {4} ROWS FETCH NEXT {5} ROWS ONLY",
                 SelectColumnClause,
                 tableName ?? TableName,
                 whereClause == null ? string.Empty : "WHERE " + whereClause,
@@ -35,7 +35,7 @@
 
         public override string GetSelectAutoIncrement()
         {
-            return "SELECT SCOPE_IDENTITY()";
+            return ";SELECT SCOPE_IDENTITY()";
         }
     }
 }
