@@ -81,11 +81,9 @@ namespace IceCoffee.SimpleCRUD.SqlGenerators
             var propertyMap = new CustomPropertyTypeMap(entityType,
                 (type, columnName) =>
                 {
-                    var properties = type.GetProperties(BindingFlags.Instance | BindingFlags.Public)
-                            .Where(p => p.CanWrite && p.GetCustomAttribute<NotMappedAttribute>(true) == null);
                     // 过滤定义了Column特性的属性
                     var result = properties.FirstOrDefault(prop => prop
-                            .GetCustomAttributes(false)
+                            .GetCustomAttributes(true)
                             .OfType<ColumnAttribute>()
                             .Any(attr => attr.Name == columnName));
                     if (result != null)
@@ -93,7 +91,7 @@ namespace IceCoffee.SimpleCRUD.SqlGenerators
                         return result;
                     }
                     // Column特性为空则返回默认对应列名的属性
-                    return properties.First(prop => prop.Name == columnName);
+                    return properties.FirstOrDefault(prop => prop.Name == columnName)!;
                 }
             );
 
