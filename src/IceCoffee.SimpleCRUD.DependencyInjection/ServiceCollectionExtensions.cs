@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using System.Reflection;
 
@@ -11,10 +12,20 @@ namespace IceCoffee.SimpleCRUD.DependencyInjection
             services.AddOptions<DbConnectionOptions>(string.Empty).Configure(configure);
             return services;
         }
-
         public static IServiceCollection AddDbConnection(this IServiceCollection services, string dbAliase, Action<DbConnectionOptions> configure)
         {
             services.AddOptions<DbConnectionOptions>(dbAliase).Configure(configure);
+            return services;
+        }
+
+        public static IServiceCollection AddDbConnection(this IServiceCollection services, IConfiguration configuration)
+        {
+            services.AddOptions<DbConnectionOptions>(string.Empty).Bind(configuration);
+            return services;
+        }
+        public static IServiceCollection AddDbConnection(this IServiceCollection services, string dbAliase, IConfiguration configuration)
+        {
+            services.AddOptions<DbConnectionOptions>(dbAliase).Bind(configuration);
             return services;
         }
 
@@ -23,7 +34,6 @@ namespace IceCoffee.SimpleCRUD.DependencyInjection
             services.AddOptions<DbConnectionOptions>(string.Empty).BindConfiguration(configurationSectionPath);
             return services;
         }
-
         public static IServiceCollection AddDbConnection(this IServiceCollection services, string dbAliase, string configurationSectionPath)
         {
             services.AddOptions<DbConnectionOptions>(dbAliase).BindConfiguration(configurationSectionPath);
