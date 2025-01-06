@@ -4,10 +4,10 @@ namespace IceCoffee.SimpleCRUD.SqlGenerators
 {
     public static class SqlGeneratorFactory
     {
-        private static ConcurrentDictionary<Type, ISqlGenerator> _sqlServerSqlGenerators;
-        private static ConcurrentDictionary<Type, ISqlGenerator> _sqlLiteSqlGenerators;
-        private static ConcurrentDictionary<Type, ISqlGenerator> _postgreSqlGenerators;
-        private static ConcurrentDictionary<Type, ISqlGenerator> _mySqlGenerators;
+        private static ConcurrentDictionary<Type, ISqlGenerator>? _sqlServerSqlGenerators;
+        private static ConcurrentDictionary<Type, ISqlGenerator>? _sqlLiteSqlGenerators;
+        private static ConcurrentDictionary<Type, ISqlGenerator>? _postgreSqlGenerators;
+        private static ConcurrentDictionary<Type, ISqlGenerator>? _mySqlGenerators;
 
         public static ISqlGenerator GetSqlGenerator(DbType dbType, Type entityType)
         {
@@ -19,7 +19,7 @@ namespace IceCoffee.SimpleCRUD.SqlGenerators
 
                 case DbType.SQLite:
                     return (_sqlLiteSqlGenerators ??= new ConcurrentDictionary<Type, ISqlGenerator>())
-                        .GetOrAdd(entityType, (entityType) => new SqlLiteSqlGenerator(entityType));
+                        .GetOrAdd(entityType, (entityType) => new SqliteSqlGenerator(entityType));
 
                 case DbType.PostgreSQL:
                     return (_postgreSqlGenerators ??= new ConcurrentDictionary<Type, ISqlGenerator>())

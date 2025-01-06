@@ -1,8 +1,8 @@
 ﻿namespace IceCoffee.SimpleCRUD.SqlGenerators
 {
-    public class SqlLiteSqlGenerator : SqlGeneratorBase
+    public class SqliteSqlGenerator : SqlGeneratorBase
     {
-        public SqlLiteSqlGenerator(Type entityType) : base(entityType)
+        public SqliteSqlGenerator(Type entityType) : base(entityType)
         {
         }
 
