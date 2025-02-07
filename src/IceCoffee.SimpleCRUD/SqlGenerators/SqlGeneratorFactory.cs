@@ -8,6 +8,7 @@ namespace IceCoffee.SimpleCRUD.SqlGenerators
         private static ConcurrentDictionary<Type, ISqlGenerator>? _sqlLiteSqlGenerators;
         private static ConcurrentDictionary<Type, ISqlGenerator>? _postgreSqlGenerators;
         private static ConcurrentDictionary<Type, ISqlGenerator>? _mySqlGenerators;
+        private static ConcurrentDictionary<Type, ISqlGenerator>? _daMengGenerators;
 
         public static ISqlGenerator GetSqlGenerator(DbType dbType, Type entityType)
         {
@@ -28,6 +29,10 @@ namespace IceCoffee.SimpleCRUD.SqlGenerators
                 case DbType.MySQL:
                     return (_mySqlGenerators ??= new ConcurrentDictionary<Type, ISqlGenerator>())
                         .GetOrAdd(entityType, (entityType) => new MySqlGenerator(entityType));
+
+                case DbType.DaMeng:
+                    return (_daMengGenerators ??= new ConcurrentDictionary<Type, ISqlGenerator>())
+                        .GetOrAdd(entityType, (entityType) => new DaMengSqlGenerator(entityType));
 
                 case DbType.Undefined:
                 default:

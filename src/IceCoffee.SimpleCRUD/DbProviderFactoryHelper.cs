@@ -59,6 +59,9 @@ namespace IceCoffee.SimpleCRUD
                 case DbType.MySQL:
                     return GetDbProviderFactory("MySql.Data", "MySql.Data.MySqlClient.MySqlClientFactory");
 
+                case DbType.DaMeng:
+                    return GetDbProviderFactory("DM.DmProvider", "Dm.DmClientFactory");
+
                 case DbType.Undefined:
                 default:
                     throw new NotSupportedException("Undefined database type: " + dbType.ToString());

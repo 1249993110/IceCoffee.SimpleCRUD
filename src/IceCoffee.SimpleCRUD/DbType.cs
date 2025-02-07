@@ -28,5 +28,10 @@ namespace IceCoffee.SimpleCRUD
         ///
         /// </summary>
         MySQL,
+
+        /// <summary>
+        ///
+        /// </summary>
+        DaMeng,
     }
 }
