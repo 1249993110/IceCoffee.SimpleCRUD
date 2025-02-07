@@ -39,6 +39,11 @@ $ dotnet add package Npgsql
 $ dotnet add package MySql.Data
 ```
 
+#### DaMeng
+```sh
+$ dotnet add package SqlSugarCore.Dm
+```
+
 ## Docs
 
 ### Metadata attributes
