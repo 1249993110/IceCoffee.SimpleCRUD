@@ -9,7 +9,7 @@
 
 Provides simple CRUD repository that reduces CRUD operations to a single line of code. It also greatly simplifies executing CRUD operations with filters, executing full queries, and executing stored procedures. It supports Async and non-Async in .NET Framework 4.7+ or .NET Standard2.0+ or .NET6+.
 
-> DB Provider Supported: SQL Server, SQLite, PostgreSQL, MySQL
+> DB Provider Supported: SQL Server, SQLite, PostgreSQL, MySQL, DaMeng
 
 ## Installation
 
