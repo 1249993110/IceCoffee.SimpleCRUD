@@ -8,6 +8,8 @@
         string InsertIntoClause { get; }
         string UpdateSetClause { get; }
 
+        string ParameterPlaceholder { get; }
+
         string[] GetPrimaryKeys();
         string GetPrimaryKeyWhereClause();
 

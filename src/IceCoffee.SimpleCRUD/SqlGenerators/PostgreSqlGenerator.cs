@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Reflection.Emit;
 
 namespace IceCoffee.SimpleCRUD.SqlGenerators
 {
@@ -51,7 +52,7 @@ namespace IceCoffee.SimpleCRUD.SqlGenerators
 
         public override string GetInIdsClause(string propName = "Ids")
         {
-            return $"=ANY(@{propName})";
+            return $"=ANY({ParameterPlaceholder}{propName})";
         }
 
         public override string GetSelectAutoIncrement()

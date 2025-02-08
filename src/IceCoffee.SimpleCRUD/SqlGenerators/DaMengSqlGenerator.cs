@@ -2,6 +2,8 @@
 {
     public class DaMengSqlGenerator : SqlGeneratorBase
     {
+        public override string ParameterPlaceholder { get; protected set; } = ":";
+
         public DaMengSqlGenerator(Type entityType) : base(entityType)
         {
         }

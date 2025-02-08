@@ -33,11 +33,11 @@ namespace IceCoffee.SimpleCRUD
         }
         protected virtual TEntity? GetById<TKey>(TKey id, string? tableName = null)
         {
-            return this.GetFirstOrDefault(SqlGenerator.GetSingleKey() + "=@Id", null, new { Id = id }, tableName);
+            return this.GetFirstOrDefault(SqlGenerator.GetSingleKey() + $"={SqlGenerator.ParameterPlaceholder}Id", null, new { Id = id }, tableName);
         }
         protected virtual Task<TEntity?> GetByIdAsync<TKey>(TKey id, string? tableName = null)
         {
-            return this.GetFirstOrDefaultAsync(SqlGenerator.GetSingleKey() + "=@Id", null, new { Id = id }, tableName);
+            return this.GetFirstOrDefaultAsync(SqlGenerator.GetSingleKey() + $"={SqlGenerator.ParameterPlaceholder}Id", null, new { Id = id }, tableName);
         }
         protected virtual PagedDto<TEntity> GetPagedList(int pageNumber, int pageSize, string? whereClause = null, string? orderByClause = null, object? param = null, string? tableName = null)
         {
@@ -200,12 +200,12 @@ namespace IceCoffee.SimpleCRUD
         }
         protected virtual int DeleteById<TId>(TId id, string? tableName = null)
         {
-            string sql = SqlGenerator.GetDeleteStatement(SqlGenerator.GetSingleKey() + "=@Id", tableName);
+            string sql = SqlGenerator.GetDeleteStatement(SqlGenerator.GetSingleKey() + $"={SqlGenerator.ParameterPlaceholder}Id", tableName);
             return base.Execute(sql, new { Id = id });
         }
         protected virtual Task<int> DeleteByIdAsync<TId>(TId id, string? tableName = null)
         {
-            string sql = SqlGenerator.GetDeleteStatement(SqlGenerator.GetSingleKey() + "=@Id", tableName);
+            string sql = SqlGenerator.GetDeleteStatement(SqlGenerator.GetSingleKey() + $"={SqlGenerator.ParameterPlaceholder}Id", tableName);
             return base.ExecuteAsync(sql, new { Id = id });
         }
         protected virtual int DeleteByIds<TId>(IEnumerable<TId> ids, bool useTransaction = false, string? tableName = null)

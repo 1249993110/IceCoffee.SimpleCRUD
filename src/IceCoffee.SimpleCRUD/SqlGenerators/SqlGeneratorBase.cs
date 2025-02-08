@@ -13,6 +13,8 @@ namespace IceCoffee.SimpleCRUD.SqlGenerators
         public virtual string InsertIntoClause { get; private set; }
         public virtual string UpdateSetClause { get; private set; }
 
+        public virtual string ParameterPlaceholder { get; protected set; } = "@";
+
         private readonly string[]? _primaryKeys;
         private readonly string? _primaryKeyWhereClause;
 
@@ -37,7 +39,7 @@ namespace IceCoffee.SimpleCRUD.SqlGenerators
                 if (prop.GetCustomAttribute<IgnoreInsertAttribute>(true) == null)
                 {
                     stringBuilder2.AppendFormat("{0},", columnName);
-                    stringBuilder3.AppendFormat("@{0},", propertyName);
+                    stringBuilder3.AppendFormat("{0}{1},", ParameterPlaceholder, propertyName);
                 }
                 if (prop.GetCustomAttribute<IgnoreSelectAttribute>(true) == null)
                 {
@@ -46,7 +48,7 @@ namespace IceCoffee.SimpleCRUD.SqlGenerators
 
                 if (prop.GetCustomAttribute<IgnoreUpdateAttribute>(true) == null)
                 {
-                    stringBuilder4.AppendFormat("{0}=@{1},", columnName, propertyName);
+                    stringBuilder4.AppendFormat("{0}={1}{2},", columnName, ParameterPlaceholder, propertyName);
                 }
             }
 
@@ -68,7 +70,7 @@ namespace IceCoffee.SimpleCRUD.SqlGenerators
                         string keyName = item.GetCustomAttribute<ColumnAttribute>(true)?.Name ?? item.Name;
 
                         keyNames.Add(keyName);
-                        stringBuilder5.AppendFormat("{0}=@{1} AND ", keyName, item.Name);
+                        stringBuilder5.AppendFormat("{0}={1}{2} AND ", keyName, ParameterPlaceholder, item.Name);
                     }
 
                     stringBuilder5.Remove(stringBuilder5.Length - 5, 5);
@@ -139,7 +141,7 @@ namespace IceCoffee.SimpleCRUD.SqlGenerators
 
         public virtual string GetKeywordLikeClause(string keywordParamName = "Keyword")
         {
-            string sql = string.Format("LIKE CONCAT('%',@{0},'%')", keywordParamName);
+            string sql = string.Format("LIKE CONCAT('%',{0}{1},'%')", ParameterPlaceholder, keywordParamName);
             return sql;
         }
 
@@ -161,7 +163,7 @@ namespace IceCoffee.SimpleCRUD.SqlGenerators
 
         public virtual string GetInIdsClause(string propName = "Ids")
         {
-            return " IN @" + propName;
+            return " IN " + ParameterPlaceholder + propName;
         }
 
         public virtual string GetSelectAutoIncrement()

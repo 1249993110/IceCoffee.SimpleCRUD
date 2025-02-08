@@ -33,7 +33,7 @@
 
         public override string GetKeywordLikeClause(string keywordParamName = "Keyword")
         {
-            return string.Format("LIKE '%'||@{0}||'%'", keywordParamName);
+            return string.Format("LIKE '%'||{0}{1}||'%'", ParameterPlaceholder, keywordParamName);
         }
 
         public override string GetSelectAutoIncrement()
