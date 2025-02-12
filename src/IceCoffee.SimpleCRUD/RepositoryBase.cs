@@ -11,6 +11,8 @@ namespace IceCoffee.SimpleCRUD
         private readonly string _dbAliase;
         private IUnitOfWork? _unitOfWork;
 
+        protected IUnitOfWork? UnitOfWork => _unitOfWork;
+
         public RepositoryBase(IDbConnectionFactory dbConnectionFactory, string dbAliase)
         {
             _dbConnectionFactory = dbConnectionFactory;
